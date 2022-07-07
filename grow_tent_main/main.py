@@ -14,7 +14,7 @@ sql_list = [
 ]
 
 # test the input of large file into database
-database(sql_dict)
+database(sql_list)
 
 # print to lcd display
 # must convert to string prior to this step
