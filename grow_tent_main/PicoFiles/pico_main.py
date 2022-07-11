@@ -4,8 +4,15 @@
 import os
 import machine
 from time import sleep
+from machine import Timer
 from grow_tent_main.PicoFiles.TempHumiditySensor import get_temp_hum
 from grow_tent_main.PicoFiles.light_sensor import readLight
+
+# start timer for lights
+def mycallback(t):
+    print("complete")
+    
+test_timer = Timer(period=10000, mode=Timer.PERIODIC, callback=mycallback)
 
 # to notify user that the program is running
 # this will be moved into loop boody once program format is complete
@@ -21,21 +28,19 @@ while True:
     
     # flash led so user knows system is monitoring
     system_led = machine.Pin(25, machine.Pin.OUT)
-    system_led.toggle()
+    system_led.value(1)
     
     # placing the port here refreshes the port value each iteration
     uart = machine.UART(0, 115200)
     
     # nested loop to keep program running after displaying values
-    # Onboard LED flashes to let user know system is monitoring
-    while counter == 0:
+    while counter == 0:  # change to number of plants
         system_led.toggle()
-        sleep(.1)
+        x = get_temp_hum()
         if readLight(26) >= 50:
             pass
         else:
             pass
-        y = ''
         # transfer values in tent state to master Pi
         # no call to functions here. will just read values from varaibles
         if uart.any() == 1:
@@ -44,8 +49,6 @@ while True:
                 uart.write(str(x).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
                 break
-        
-        # send data of second plant
         elif uart.any() == 2:
             print("second plant")
             break
