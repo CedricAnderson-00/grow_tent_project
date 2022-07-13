@@ -43,3 +43,4 @@ while True:
     except OSError:
         print("no reading from sensor")
         heat_control.value(0)
+        hum_control.value(0)
