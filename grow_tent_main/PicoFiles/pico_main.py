@@ -7,6 +7,7 @@ from time import sleep
 from machine import Timer
 from grow_tent_main.PicoFiles.TempHumiditySensor import get_temp_hum
 from grow_tent_main.PicoFiles.light_sensor import readLight
+import grow_tent_main.PicoFiles.plants as Plant
 
 # start timer for lights
 def mycallback(t):
@@ -37,6 +38,9 @@ while True:
     while counter == 0:  # change to number of plants
         system_led.toggle()
         x = get_temp_hum()
+        send_temp_c = x[1]
+        send_temp_f = x[2]
+        send_hum = x[3]
         if readLight(26) >= 50:
             pass
         else:
@@ -45,6 +49,7 @@ while True:
         # no call to functions here. will just read values from varaibles
         if uart.any() == 1:
             counter +=1
+            plant1 = Plant()
             while True:
                 uart.write(str(x).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
