@@ -31,7 +31,7 @@ def get_temp_hum():
         avg_temp_f = (temp_f + temp_f2) / 2
         avg_temp_c = (temp + temp2) / 2
         avg_hum = (hum + hum2) / 2
-    except OSError:  # catches this error if sensor if faulty. Prevents program from crashing
+    except (OSError, TypeError):  # catches this error if sensor if faulty. Prevents program from crashing
         return 0
     
     return avg_temp_c, avg_temp_f, avg_hum
