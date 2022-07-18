@@ -2,7 +2,7 @@ import os
 from time import sleep
 from machine import Timer, Pin
 from grow_tent_main.PicoFiles.TempHumiditySensor import get_temp_hum
-from grow_tent_main.PicoFiles.light_sensor import readLight
+from grow_tent_main.PicoFiles.SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_three
 import grow_tent_main.PicoFiles.plants as Plant
 
 
@@ -111,13 +111,16 @@ while True:
         send_temp_c = x[0]
         send_temp_f = x[1]
         send_hum = x[2]
+        soil1 = soil_sensor_one()
+        soil2 = soil_sensor_two()
+        soil3 = soil_sensor_three()
 
         # transfer values in tent state to master Pi
         # no call to functions here. will just read values from varaibles
         # add soil logic here
         if uart.any() == 1:
             counter +=1
-            plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, 200, pump_one_total
+            plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil1, pump_one_total
             while True:
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
@@ -125,7 +128,7 @@ while True:
                 break
         elif uart.any() == 2:
             counter +=1
-            plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, 201, pump_two_total
+            plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil2, pump_two_total
             while True:
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
@@ -133,7 +136,7 @@ while True:
                 break
         elif uart.any() == 3:
             counter +=1
-            plant = 3, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, 203, pump_three_total
+            plant = 3, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil3, pump_three_total
             while True:
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
