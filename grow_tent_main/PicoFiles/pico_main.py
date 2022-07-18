@@ -1,5 +1,4 @@
 import os
-import machine
 from time import sleep
 from machine import Timer, Pin
 from grow_tent_main.PicoFiles.TempHumiditySensor import get_temp_hum
@@ -8,6 +7,14 @@ import grow_tent_main.PicoFiles.plants as Plant
 
 
 # functions
+def continous_lights():
+    global light_time_on, tent_light_control
+    
+    tent_light_control.value(1)
+    hour_timer = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=continous_lights)  # 1 hour in milliseconds
+    light_time_on +=1  # increase overall timer by 1 hour
+    
+    
 def lightsOn(t):
     """lights_on() turns tent light on and then waits a user-defined amount of time. 
        Adds time off to the global variable. After Timer is complete, calls lights_off()
@@ -46,25 +53,22 @@ def waterPlants():
     mililiters = 250
     
     pump_one.value(1)
-    sleep(5)
+    sleep(1)
     pump_one_total += mililiters
     pump_one.value(0)
     pump_two.value(1)
-    sleep(6)
+    sleep(1)
     pump_two_total += mililiters
     pump_two.value(0)
     pump_three.value(1)
-    sleep(7)
+    sleep(1)
     pump_three_total += mililiters
     pump_three.value(0)
     
     # recursion
-    water_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=waterPlants)
+    water_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=waterPlants)  # timer to water every other day
     
 
-# variables to start water and light cycles  
-program_start_timer = Timer(period=10000, mode=Timer.ONE_SHOT, callback=lightsOff)
-waterPlants()
 
 # timer values to input into MySQL
 light_time_on = 0000
@@ -78,6 +82,10 @@ tent_light_control = Pin(17, Pin.OUT)
 pump_one = Pin(15, Pin.IN)
 pump_two = Pin(14, Pin.IN)
 pump_three = Pin(13, Pin.IN)
+
+# variables to start water and light cycles  
+# program_start_timer = Timer(period=3_600_000, mode=Timer.ONE_SHOT, callback=lightsOff)
+waterPlants()
 
 # to notify user that the program is running
 # delete after R/D
@@ -95,11 +103,9 @@ while True:
     system_led = machine.Pin(25, machine.Pin.OUT)
     system_led.value(1)
     
-    # placing the port here refreshes the port value each iteration
-    uart = machine.UART(0, 115200)
-    
     # nested loop to keep program running after displaying values
-    while counter == 0:  # change to number of plants
+    while counter != 4:  # change to number of plants
+        uart = machine.UART(0, 115200)
         system_led.toggle()
         x = get_temp_hum()
         send_temp_c = x[0]
@@ -111,21 +117,23 @@ while True:
         # add soil logic here
         if uart.any() == 1:
             counter +=1
-            plant = Plant(counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, pump_one_total)
+            plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, 200, pump_one_total
             while True:
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
                 pump_one_total = 0
                 break
         elif uart.any() == 2:
-            plant = Plant(counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, pump_two_total)
+            counter +=1
+            plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, 201, pump_two_total
             while True:
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
                 pump_two_total = 0
                 break
         elif uart.any() == 3:
-            plant = Plant(counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, pump_three_total)
+            counter +=1
+            plant = 3, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, 203, pump_three_total
             while True:
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent

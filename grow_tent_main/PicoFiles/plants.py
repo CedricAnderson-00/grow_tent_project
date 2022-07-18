@@ -5,7 +5,7 @@ class Plants:
     # Class attribute
     species = "Cannabis"
     
-    def __init__(self, id, temp_f, temp_c, light_on, light_off, hum, soil, water,):
+    def __init__(self, id, temp_f, temp_c, light_on, light_off, hum, soil, water):
         self.id = id
         self.temp_f = temp_f
         self.temp_c = temp_c
