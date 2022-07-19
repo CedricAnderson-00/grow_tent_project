@@ -8,6 +8,9 @@ from datetime import datetime
 # find a way to leave the database open and just add to tables
 # create a function that takes a dictionary and adds it to the database
 def database(list):
+    """Function that takes a list as an arguement. Inserts values into database
+       by their index locations."""
+    
     try:
         with connect(
             host="localhost",
