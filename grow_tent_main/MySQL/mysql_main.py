@@ -15,25 +15,24 @@ def database(list):
             password="Falconview_3141",  # remove prior to sharing
             database="grow_tent_testing"
         ) as connection:
-            plant_id = list[8]
-            temp_f = list[0]
-            temp_c = list[1]
-            humidity = list[2]
-            daily_water = list[3]
-            light_on = list[4]
-            light_off = list[5]
-            soil_moisture = list[6]
-            soil_ph = list[7]
+            plant_id = list[0]
+            temp_f = list[1]
+            temp_c = list[2]
+            humidity = list[3]
+            daily_water = list[4]
+            light_on = list[5]
+            light_off = list[6]
+            soil_moisture = list[7]
             first_flower = datetime.now()
             test_data = [(temp_f, temp_c, humidity, daily_water, light_on, light_off, 
-                          soil_moisture, soil_ph, first_flower, plant_id)]
+                          soil_moisture, first_flower, plant_id)]
             
             # the <%s> tells python that more data will come after the execution of that line
             insert_main_data = """
             INSERT INTO grow_values 
                 (temp_f, temp_c, humidity, daily_water, light_on, light_off, 
-                soil_moisture, soil_ph, first_flower, plant_id)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+                soil_moisture, first_flower, plant_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) 
             """
             with connection.cursor() as cursor:
                 cursor.executemany(insert_main_data, test_data)  # change to .execute for one arguement
