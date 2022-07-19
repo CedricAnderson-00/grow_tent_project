@@ -28,17 +28,19 @@ while True:
             emergency_cooling.value(0)
         elif temp_f > 85:
             emergency_cooling.value(1)    
-        else:
+        elif temp_f < 70:
             heat_control.value(1)
             
         # this logic will check humidity levels and operate relay
         if hum > 40 < 50:
             hum_control.value(0)
             dehumidifier.value(0)
-        elif hum >= 50:
+        elif hum >= 60:
             dehumidifier.value(1)
-        else:
+        elif hum < 40:
             hum_control.value(1)
+            
+        sleep(60_000)  # one minute timer to slow loop down
         
     except OSError:
         print("no reading from sensor")
