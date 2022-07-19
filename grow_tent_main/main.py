@@ -1,9 +1,13 @@
-import time
+from time import sleep
 import serial
+from MySQL.mysql_main import database
 
 def receive_from_Pico(value):
+    """Function that takes an argument the represents a length.
+       Passes the length value to Pi Pico to send the corresponding plant values"""
+    
     ser = serial.Serial(
-    port='/dev/ttyS0', # Change this according to connection methods, e.g. /dev/ttyUSB0
+    port='/dev/ttyS0',  # Change this according to connection methods, e.g. /dev/ttyUSB0
     baudrate = 115200,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -16,21 +20,24 @@ def receive_from_Pico(value):
     from_pico = ser.readline()
     decode_pico = from_pico.decode()
     print(decode_pico)
-    decode_pico.strip("(", ")")
+    x = decode_pico.strip("()")
+    new_list = list(x.split(","))
     
-    return decode_pico
+    return new_list
     
-plant1 = receive_from_Pico("1")
-plant2 = receive_from_Pico("1.")
-plant3 = receive_from_Pico("1..")
+while True:
+    # receive values from Pico
+    plant1 = receive_from_Pico("1")
+    plant2 = receive_from_Pico("1.")
+    plant3 = receive_from_Pico("1..")
+    
+    # send values to database
+    database(plant1)
+    database(plant2)
+    database(plant3)
+    
+    sleep(1_800_000)  # sleep for one hour
 
-# # empty list to send to database
-# sql_list = [
-#     75.2
-# ]
-
-# # test the input of large file into database
-# database(sql_list)
 
 # print to lcd display
 # must convert to string prior to this step
