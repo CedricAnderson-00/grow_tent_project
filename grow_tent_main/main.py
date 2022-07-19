@@ -1,30 +1,28 @@
 import time
 import serial
 
-ser = serial.Serial(
-  port='/dev/ttyS0', # Change this according to connection methods, e.g. /dev/ttyUSB0
-  baudrate = 115200,
-  parity=serial.PARITY_NONE,
-  stopbits=serial.STOPBITS_ONE,
-  bytesize=serial.EIGHTBITS,
-  timeout=1
-)
-counter = 0
-plants = 2
-while counter < 1:
+def receive_from_Pico(value):
+    ser = serial.Serial(
+    port='/dev/ttyS0', # Change this according to connection methods, e.g. /dev/ttyUSB0
+    baudrate = 115200,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE,
+    bytesize=serial.EIGHTBITS,
+    timeout=1
+    )
+    
     print("Gathering data.....")    
-    ser.write('hello'.encode('utf-8'))
-    if plants != 0:
-        print(plants)
-        # put a delay here if not reading all bits
-        from_pico = ser.read(14)
-        decode_pico = from_pico.decode()
-        print(decode_pico)
-        plants -=1
-    else:
-        plants = 2
-    counter +=1
-ser.write(0)
+    ser.write(value.encode('utf-8'))
+    from_pico = ser.readline()
+    decode_pico = from_pico.decode()
+    print(decode_pico)
+    decode_pico.strip("(", ")")
+    
+    return decode_pico
+    
+plant1 = receive_from_Pico("1")
+plant2 = receive_from_Pico("1.")
+plant3 = receive_from_Pico("1..")
 
 # # empty list to send to database
 # sql_list = [

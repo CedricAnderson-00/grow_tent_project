@@ -4,6 +4,7 @@ from machine import Timer, Pin
 from grow_tent_main.PicoFiles.TempHumiditySensor import get_temp_hum
 from grow_tent_main.PicoFiles.SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_three
 import grow_tent_main.PicoFiles.plants as Plant
+from grow_tent_main.MySQL.mysql_main import database
 
 
 # functions
@@ -86,6 +87,7 @@ pump_three = Pin(13, Pin.IN)
 # variables to start water and light cycles  
 # program_start_timer = Timer(period=3_600_000, mode=Timer.ONE_SHOT, callback=lightsOff)
 waterPlants()
+continous_lights()
 
 # to notify user that the program is running
 # delete after R/D
