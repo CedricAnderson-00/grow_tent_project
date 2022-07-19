@@ -9,6 +9,8 @@ from grow_tent_main.MySQL.mysql_main import database
 
 # functions
 def continous_lights():
+    """Function for plants that require constant light. Increments every hour."""
+    
     global light_time_on, tent_light_control
     
     tent_light_control.value(1)
