@@ -98,15 +98,13 @@ print("*****Program running*****")
 # main loop will monitor state of tent
 # initiate a timer to grab data after a certain period
 while True:
-    # counter to limit inner loop iterations
-    counter = 0
-    
+
     # flash led so user knows system is monitoring
     system_led = machine.Pin(25, machine.Pin.OUT)
     system_led.value(1)
     
     # nested loop to keep program running after displaying values
-    while counter != 4:  # change to number of plants
+    while True:  # change to number of plants
         uart = machine.UART(0, 115200)
         system_led.toggle()
         x = get_temp_hum()
@@ -121,26 +119,20 @@ while True:
         # no call to functions here. will just read values from varaibles
         # add soil logic here
         if uart.any() == 1:
-            counter +=1
             plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil1, pump_one_total
-            while True:
-                uart.write(str(plant).encode('utf-8'))
-                sleep(0.01)  # this depends on how much data is sent
-                pump_one_total = 0
-                break
+            uart.write(str(plant).encode('utf-8'))
+            sleep(0.01)  # this depends on how much data is sent
+            pump_one_total = 0
+              
         elif uart.any() == 2:
-            counter +=1
             plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil2, pump_two_total
-            while True:
-                uart.write(str(plant).encode('utf-8'))
-                sleep(0.01)  # this depends on how much data is sent
-                pump_two_total = 0
-                break
+            uart.write(str(plant).encode('utf-8'))
+            sleep(0.01)  # this depends on how much data is sent
+            pump_two_total = 0
+
         elif uart.any() == 3:
-            counter +=1
             plant = 3, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil3, pump_three_total
-            while True:
-                uart.write(str(plant).encode('utf-8'))
-                sleep(0.01)  # this depends on how much data is sent
-                pump_three_total = 0
-                break
+            uart.write(str(plant).encode('utf-8'))
+            sleep(0.01)  # this depends on how much data is sent
+            pump_three_total = 0
+
