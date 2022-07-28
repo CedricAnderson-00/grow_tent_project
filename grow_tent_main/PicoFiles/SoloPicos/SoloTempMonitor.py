@@ -29,24 +29,24 @@ while True:
         temp_f = temp * (9 / 5) + 32
         
         # logic to test current state of system
-        if temp_f > 80:
+        if temp_f == 80:
             heat_control.value(0)
             emergency_cooling.value(0)
         elif temp_f > 85:
             emergency_cooling.value(1)
             heat_control.value(0)    
-        elif temp_f < 75:
+        elif temp_f < 78.5:  # the gap in temp is to reduce wear on relay
             heat_control.value(1)
             emergency_cooling.value(0)
             
         # this logic will check humidity levels and operate relay
-        if hum > 50:
+        if hum == 50:
             hum_control.value(0)
             dehumidifier.value(0)
         elif hum >= 55:
             dehumidifier.value(1)
-            hum_control.value(1)
-        elif hum < 45:
+            hum_control.value(0)
+        elif hum < 46:
             hum_control.value(1)
             dehumidifier.value(0)
             
