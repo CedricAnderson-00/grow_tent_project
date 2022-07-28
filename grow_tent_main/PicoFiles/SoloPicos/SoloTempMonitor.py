@@ -13,6 +13,12 @@ hum_control = Pin(17, Pin.OUT)
 sensor = dht.DHT11(Pin(28))
 led_onboard = Pin(25, Pin.OUT)
 
+# ensure all relays are off at the start of program
+dehumidifier.value(0)
+hum_control.value(0)
+heat_control.value(0)
+emergency_cooling.value(0)
+
 # while loop to continuosly monitor system
 while True:
     try:
@@ -23,26 +29,30 @@ while True:
         temp_f = temp * (9 / 5) + 32
         
         # logic to test current state of system
-        if temp_f > 70 < 85:
+        if temp_f > 80:
             heat_control.value(0)
             emergency_cooling.value(0)
         elif temp_f > 85:
-            emergency_cooling.value(1)    
-        elif temp_f < 70:
+            emergency_cooling.value(1)
+            heat_control.value(0)    
+        elif temp_f < 75:
             heat_control.value(1)
+            emergency_cooling.value(0)
             
         # this logic will check humidity levels and operate relay
-        if hum > 40 < 50:
+        if hum > 50:
             hum_control.value(0)
             dehumidifier.value(0)
-        elif hum >= 60:
+        elif hum >= 55:
             dehumidifier.value(1)
-        elif hum < 40:
             hum_control.value(1)
+        elif hum < 45:
+            hum_control.value(1)
+            dehumidifier.value(0)
             
-        sleep(60_000)  # one minute timer to slow loop down
+        sleep(0.5)  # one minute timer to slow loop down
         
-    except OSError:
+    except (OSError, TypeError):
         print("no reading from sensor")
         heat_control.value(0)
         hum_control.value(0)

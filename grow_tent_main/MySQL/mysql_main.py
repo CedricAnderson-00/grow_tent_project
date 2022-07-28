@@ -21,11 +21,11 @@ def database(list):
             plant_id = list[0]
             temp_f = list[1]
             temp_c = list[2]
-            humidity = list[3]
-            daily_water = list[4]
-            light_on = list[5]
-            light_off = list[6]
-            soil_moisture = list[7]
+            humidity = list[5]
+            daily_water = list[7]
+            light_on = list[3]
+            light_off = list[4]
+            soil_moisture = list[6]
             first_flower = datetime.now()
             test_data = [(temp_f, temp_c, humidity, daily_water, light_on, light_off, 
                           soil_moisture, first_flower, plant_id)]
