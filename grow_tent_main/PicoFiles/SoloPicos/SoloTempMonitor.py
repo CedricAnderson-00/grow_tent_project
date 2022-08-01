@@ -6,7 +6,7 @@ from time import sleep
 import dht
 
 # assign GPIO pin locations
-emergency_cooling = Pin(18, Pin.OUT)
+# emergency_cooling = Pin(18, Pin.OUT)
 dehumidifier = Pin(19, Pin.OUT)
 heat_control = Pin(16, Pin.OUT)
 hum_control = Pin(17, Pin.OUT)
@@ -31,7 +31,7 @@ while True:
         # logic to test current state of system
         if temp_f == 80:
             heat_control.value(0)
-            emergency_cooling.value(0)
+            # emergency_cooling.value(0)
         elif temp_f > 85:
             emergency_cooling.value(1)
             heat_control.value(0)    

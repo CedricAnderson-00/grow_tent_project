@@ -13,10 +13,10 @@ def database(list):
     
     try:
         with connect(
-            host="localhost",
-            user="cedric",  # remove prior to sharing
-            password="Falconview_3141",  # remove prior to sharing
-            database="grow_tent_testing"
+            host = "localhost",
+            user = "user",  # remove prior to sharing
+            password = "password",  # remove prior to sharing
+            database = "grow_tent_testing"
         ) as connection:
             plant_id = list[0]
             temp_f = list[1]
