@@ -72,9 +72,24 @@ def waterPlants():
 def display_lcd():
     """Timed function that transmits data to LCDs"""
     
+    # check sensor to get values
+    y = get_temp_hum()
+    temp_c = y[0]
+    temp_f = y[1]
+    hum = y[2]
+    
+    # hex addresses for lcd(s)
+    lcd_one = 0x27
+    lcd_two = 0x23
+    lcd_three = 0x25
+    lcd_four = 0x26
+    
     global send_hum, send_temp_c, send_temp_f
     
-    lcd(str(send_temp_f, send_temp_c, send_hum))
+    lcd(lcd_one, str(temp_f))
+    lcd(lcd_two, str(temp_c))
+    lcd(lcd_three, str(hum)) 
+    lcd(lcd_four, str(hum)) 
     
     display_timer = Timer(period=60_000, mode=Timer.ONE_SHOT, callback=display_lcd)  # updates lcd(s) every minute
     
