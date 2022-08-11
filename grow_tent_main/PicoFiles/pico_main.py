@@ -74,10 +74,10 @@ def display_lcd():
     
     # hex addresses for lcd(s)
     # SDA(8) SCL(9)
-    lcd_one = 0x27
-    lcd_two = 0x23
-    lcd_three = 0x25
-    lcd_four = 0x26
+    lcd_one = 0x27  # temperature f
+    lcd_two = 0x26  # temperature c
+    lcd_three = 0x25  # humidity
+    lcd_four = 0x23  # lights
     
     global send_hum, send_temp_c, send_temp_f, low_hum, low_temp_f, low_temp_c, light_time_on, light_time_off
     
