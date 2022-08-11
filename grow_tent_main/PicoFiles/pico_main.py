@@ -1,10 +1,8 @@
-import os
 from time import sleep
 from machine import Timer, Pin
 from grow_tent_main.PicoFiles.TempHumiditySensor import get_temp_hum
 from grow_tent_main.PicoFiles.SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_three
-import grow_tent_main.PicoFiles.plants as Plant
-from grow_tent_main.MySQL.mysql_main import database
+from views.LcdDisplay import lcd
 
 
 # functions
@@ -70,6 +68,17 @@ def waterPlants():
     
     # recursion
     water_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=waterPlants)  # timer to water every other day
+    
+def display_lcd():
+    """Timed function that transmits data to LCDs"""
+    
+    global send_hum, send_temp_c, send_temp_f
+    
+    lcd(str(send_temp_f, send_temp_c, send_hum))
+    
+    display_timer = Timer(period=60_000, mode=Timer.ONE_SHOT, callback=display_lcd)  # updates lcd(s) every minute
+    
+    return
     
 
 
