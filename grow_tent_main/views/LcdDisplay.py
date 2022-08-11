@@ -5,7 +5,7 @@ from pico_i2c_lcd import I2cLcd
 I2C_NUM_ROWS = 2
 I2C_NUM_COLS = 16
 
-def lcd(hex_address, value_1, value_2, name):
+def lcd(hex_address, value_1, value_2, name, *args):
     """Receives a hex address and a value to display"""
       
     # display value
@@ -18,6 +18,6 @@ def lcd(hex_address, value_1, value_2, name):
     elif name == 3:
         lcd.putstr(f"Humidity \nH: {value_1:.4} L: {value_2:.4}")
     elif name == 4:
-        lcd.putstr(f"Light On: {value_1}\nLight Off: {value_2}")
+        lcd.putstr(f"Light On: {value_1}h\nOff: {value_2}h P: {args[0]}")
     
     return
