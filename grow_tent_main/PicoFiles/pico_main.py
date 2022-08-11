@@ -72,32 +72,24 @@ def waterPlants():
 def display_lcd():
     """Timed function that transmits data to LCDs"""
     
-    # check sensor to get values
-    y = get_temp_hum()
-    temp_c = y[0]
-    temp_f = y[1]
-    hum = y[2]
-    
     # hex addresses for lcd(s)
+    # SDA(8) SCL(9)
     lcd_one = 0x27
     lcd_two = 0x23
     lcd_three = 0x25
     lcd_four = 0x26
     
-    global send_hum, send_temp_c, send_temp_f
+    global send_hum, send_temp_c, send_temp_f, low_hum, low_temp_f, low_temp_c, light_time_on, light_time_off
     
-    lcd(lcd_one, str(temp_f))
-    lcd(lcd_two, str(temp_c))
-    lcd(lcd_three, str(hum)) 
-    lcd(lcd_four, str(hum)) 
-    
-    display_timer = Timer(period=60_000, mode=Timer.ONE_SHOT, callback=display_lcd)  # updates lcd(s) every minute
-    
+    lcd(lcd_one, str(send_temp_f), str(low_temp_f), 1)
+    lcd(lcd_two, str(send_temp_c), str(low_temp_c), 2)
+    lcd(lcd_three, str(send_hum), str(low_hum), 3) 
+    lcd(lcd_four, str(light_time_on), str(light_time_off), 4) 
+        
     return
     
-
-
-# timer values to input into MySQL
+    
+# timer values 
 light_time_on = 0000
 light_time_off = 0000
 pump_one_total = 0000
@@ -114,6 +106,13 @@ pump_three = Pin(13, Pin.IN)
 # program_start_timer = Timer(period=3_600_000, mode=Timer.ONE_SHOT, callback=lightsOff)
 waterPlants()
 continous_lights()
+display_timer = Timer(period=60_000, mode=Timer.PERIODIC, callback=display_lcd)  # updates lcd(s) every minute
+
+# low values
+# set to maximum values for initial running of program to establish low values
+low_temp_f = 212
+low_temp_c = 100
+low_hum = 100
 
 # to notify user that the program is running
 # delete after R/D
@@ -137,13 +136,23 @@ while True:
         send_temp_c = x[0]
         send_temp_f = x[1]
         send_hum = x[2]
+        
+        # logic to get low and high values
+        if send_hum < low_hum:
+            low_hum = send_hum
+            
+        if send_temp_c < low_temp_c:
+            low_temp_c = send_temp_c
+            
+        if send_temp_f < low_temp_f:
+            low_temp_f = send_temp_f
+            
+        # get soil readings    
         soil1 = soil_sensor_one()
         soil2 = soil_sensor_two()
         soil3 = soil_sensor_three()
 
         # transfer values in tent state to master Pi
-        # no call to functions here. will just read values from varaibles
-        # add soil logic here
         if uart.any() == 1:
             plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil1, pump_one_total
             uart.write(str(plant).encode('utf-8'))
