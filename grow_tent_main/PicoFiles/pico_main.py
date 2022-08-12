@@ -3,9 +3,27 @@ from machine import Timer, Pin
 from grow_tent_main.PicoFiles.TempHumiditySensor import get_temp_hum
 from grow_tent_main.PicoFiles.SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_three
 from views.LcdDisplay import lcd
+import _thread
 
 
 # functions
+def phase_switch_thread():
+    """Function that creates a thread to monitor toggle switches to change grow parameters"""
+    
+    global phase_one, phase_two, phase_three, phase_four, toggle_one, toggle_two, toggle_three, toggle_four
+    
+    if toggle_one.value() == 1:
+        phase_one = True
+    elif toggle_two.value() == 1:
+        phase_two = True
+    elif toggle_three.value() == 1:
+        phase_three = True
+    elif toggle_four.value() == 1:
+        phase_four = True
+    sleep(0.01)
+_thread.start_new_thread(phase_switch_thread, ())
+
+
 def continous_lights():
     """Function for plants that require constant light. Increments every hour."""
     
@@ -88,6 +106,19 @@ def display_lcd():
         
     return
     
+
+# toggle switch GPIO
+toggle_one = Pin(16, Pin.IN, Pin.PULL_DOWN)
+toggle_two = Pin(17, Pin.IN, Pin.PULL_DOWN)
+toggle_three = Pin(18, Pin.IN, Pin.PULL_DOWN)
+toggle_four = Pin(19, Pin.IN, Pin.PULL_DOWN)
+
+
+# global variables for switches
+phase_one = False
+phase_two = False
+phase_three = False
+phase_four = False
     
 # timer values 
 light_time_on = 0000
