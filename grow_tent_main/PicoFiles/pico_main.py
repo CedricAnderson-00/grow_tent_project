@@ -123,7 +123,7 @@ def fertilizer(t):
     global fert_one, fert_two, fert_three
     
     # global dispensed amounts
-    global fert_one_total, fert_two_total, fert_three_total
+    global fert_one_total, fert_two_total, fert_three_total, stir_plate
     
     # each pump is calibrated to always dispense a certain amount based off current phase per duty cycle
     veg_mililiters = 250
@@ -131,6 +131,9 @@ def fertilizer(t):
     
     # same logic as water_plants()
     if toggle_one.value() == 1:
+        stir_plate.value(1)
+        sleep(20)
+        stir_plate.value(0)
         fert_one.value(1)
         sleep(10)
         fert_one_total += seedling_ml
@@ -210,12 +213,13 @@ fert_three_total = 0000
 
 # GPIO assignments
 tent_light_control = Pin(12, Pin.OUT)
-pump_one = Pin(15, Pin.IN)
-pump_two = Pin(14, Pin.IN)
-pump_three = Pin(13, Pin.IN)
-fert_one = Pin(20, Pin.IN)
-fert_two = Pin(21, Pin.IN)
-fert_three = Pin(22, Pin.IN)
+pump_one = Pin(15, Pin.OUT)
+pump_two = Pin(14, Pin.OUT)
+pump_three = Pin(13, Pin.OUT)
+fert_one = Pin(20, Pin.OUT)
+fert_two = Pin(21, Pin.OUT)
+fert_three = Pin(22, Pin.OUT)
+stir_plate = Pin(12, Pin.OUT)
 
 # variables to start water and light cycles  
 # program_start_timer = Timer(period=3_600_000, mode=Timer.ONE_SHOT, callback=lights_off)
