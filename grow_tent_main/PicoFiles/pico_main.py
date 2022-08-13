@@ -108,7 +108,6 @@ def water_plants(t):
         pump_three_total += veg_mililiters
         pump_three.value(0)
     elif toggle_four.value() == 1:
-        Timer.deinit(water_timer)
         pump_one.value(0)
         pump_two.value(0)
         pump_three.value(0)
@@ -161,7 +160,6 @@ def fertilizer(t):
         fert_three_total += veg_mililiters
         fert_three.value(0)
     elif toggle_four.value() == 1:
-        Timer.deinit(fert_timer)
         fert_one.value(0)
         fert_two.value(0)
         pump_three.value(0)
