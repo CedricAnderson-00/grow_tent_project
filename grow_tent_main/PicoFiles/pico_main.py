@@ -24,17 +24,24 @@ def phase_switch_thread():
 _thread.start_new_thread(phase_switch_thread, ())
 
 
-def continous_lights():
-    """Function for plants that require constant light. Increments every hour."""
+def light_controller(t):
+    """Function that monitors toggle switch state and initializes a light patter IAW switch parameters"""
     
-    global light_time_on, tent_light_control
+    global light_time_on, tent_light_control, toggle_one, toggle_two, toggle_three, toggle_four
     
-    tent_light_control.value(1)
-    hour_timer = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=continous_lights)  # 1 hour in milliseconds
-    light_time_on +=1  # increase overall timer by 1 hour
+    if toggle_one.value() == 1 | toggle_two.value() == 1:
+        tent_light_control.value(1)
+        hour_timer = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=light_controller)  # 1 hour in milliseconds
+        light_time_on +=1  
+    elif toggle_three.value() == 1:
+        Timer.deinit(hour_timer)
+        tent_light_control.value(0)
+        veg_timer_on = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=lights_on)  # 12 hours in ms
+    elif toggle_four.value() == 1:
+        tent_light_control.value(0)
     
     
-def lightsOn(t):
+def lights_on(t):
     """lights_on() turns tent light on and then waits a user-defined amount of time. 
        Adds time off to the global variable. After Timer is complete, calls lights_off()
        """
@@ -42,11 +49,11 @@ def lightsOn(t):
     global light_time_off, tent_light_control
     
     tent_light_control.value(1)
-    light_time_off += 1
-    timer_off = Timer(period=500, mode=Timer.ONE_SHOT, callback=lightsOff)
+    light_time_off += 12
+    veg_timer_off = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=lights_off)  # 12 hours in ms
     
 
-def lightsOff(t):
+def lights_off(t):
     """lights_off() turns tent light off and then waits a user-defined amount of time. 
        Adds time on to the global variable. After Timer is complete, calls lights_on()
        """
@@ -54,11 +61,11 @@ def lightsOff(t):
     global light_time_on, tent_light_control
     
     tent_light_control.value(0)
-    light_time_on += 1
-    timer_on = Timer(period=500, mode=Timer.ONE_SHOT, callback=lightsOn)
+    light_time_on += 12
+    light_controller()
     
     
-def waterPlants(t):
+def water_plants(t):
     """Function to water each plant for a set amount of time depending on calibration.
        Uses recurrsion to start a timer to repeat in 48 hours
        """
@@ -122,7 +129,7 @@ def fertilizer(t):
     veg_mililiters = 250
     seedling_ml = 10
     
-    # same logic as waterPlants()
+    # same logic as water_plants()
     if toggle_one.value() == 1:
         fert_one.value(1)
         sleep(10)
@@ -155,7 +162,8 @@ def fertilizer(t):
         fert_two.value(0)
         pump_three.value(0)
     
-    fert_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=waterPlants)  # timer to water every other day
+    fert_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=water_plants)  # timer to water every other day
+
     
 def display_lcd():
     """Timed function that transmits data to LCDs"""
@@ -210,9 +218,9 @@ fert_two = Pin(21, Pin.IN)
 fert_three = Pin(22, Pin.IN)
 
 # variables to start water and light cycles  
-# program_start_timer = Timer(period=3_600_000, mode=Timer.ONE_SHOT, callback=lightsOff)
-waterPlants()
-continous_lights()
+# program_start_timer = Timer(period=3_600_000, mode=Timer.ONE_SHOT, callback=lights_off)
+water_plants()
+light_controller()
 display_timer = Timer(period=60_000, mode=Timer.PERIODIC, callback=display_lcd)  # updates lcd(s) every minute
 
 # low values
