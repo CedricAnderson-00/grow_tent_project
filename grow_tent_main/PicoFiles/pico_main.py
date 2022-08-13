@@ -1,5 +1,5 @@
 from time import sleep
-from machine import Timer, Pin
+from machine import Timer, Pin, UART
 from grow_tent_main.PicoFiles.TempHumiditySensor import get_temp_hum
 from grow_tent_main.PicoFiles.SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_three
 from views.LcdDisplay import lcd
@@ -69,6 +69,7 @@ def water_plants(t):
     """Function to water each plant for a set amount of time depending on calibration.
        Uses recurrsion to start a timer to repeat in 48 hours
        """
+       
     # global GPIO control   
     global pump_one, pump_two, pump_three, toggle_one, toggle_two, toggle_three, toggle_four
     
@@ -222,7 +223,6 @@ fert_three = Pin(22, Pin.OUT)
 stir_plate = Pin(12, Pin.OUT)
 
 # variables to start water and light cycles  
-# program_start_timer = Timer(period=3_600_000, mode=Timer.ONE_SHOT, callback=lights_off)
 water_plants()
 light_controller()
 display_timer = Timer(period=60_000, mode=Timer.PERIODIC, callback=display_lcd)  # updates lcd(s) every minute
@@ -233,23 +233,17 @@ low_temp_f = 212
 low_temp_c = 100
 low_hum = 100
 
-# to notify user that the program is running
-# delete after R/D
+# notify user that the program is running
 print("*****Program running*****")
 
 # loop that constantly runs to monitor state of UART
-# counter will also dictate what plant to get data from
-# main loop will monitor state of tent
-# initiate a timer to grab data after a certain period
 while True:
 
     # flash led so user knows system is monitoring
-    system_led = machine.Pin(25, machine.Pin.OUT)
+    system_led = Pin(25, Pin.OUT)
     system_led.value(1)
-    
-    # nested loop to keep program running after displaying values
     while True:  # change to number of plants
-        uart = machine.UART(0, 115200)
+        uart = UART(0, 115200)
         system_led.toggle()
         x = get_temp_hum()
         send_temp_c = x[0]
@@ -273,13 +267,13 @@ while True:
 
         # transfer values in tent state to master Pi
         if uart.any() == 1:
-            plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil1, pump_one_total
+            plant = 1, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil1, pump_one_total
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent
             pump_one_total = 0
               
         elif uart.any() == 2:
-            plant = counter, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil2, pump_two_total
+            plant = 2, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil2, pump_two_total
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent
             pump_two_total = 0
