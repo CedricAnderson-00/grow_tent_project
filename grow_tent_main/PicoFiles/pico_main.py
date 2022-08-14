@@ -1,8 +1,8 @@
 from time import sleep
 from machine import Timer, Pin, UART
-from grow_tent_main.PicoFiles.TempHumiditySensor import get_temp_hum
-from grow_tent_main.PicoFiles.SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_three
-from views.LcdDisplay import lcd
+from TempHumiditySensor import get_temp_hum
+from SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_three
+from LcdDisplay import lcd
 import _thread
 
 
@@ -10,18 +10,22 @@ import _thread
 def phase_switch_thread():
     """Function that creates a thread to monitor toggle switches to change grow parameters"""
     
-    global phase_one, phase_two, phase_three, phase_four, toggle_one, toggle_two, toggle_three, toggle_four
+    global phase_one, phase_two, phase_three, phase_four, toggle_one, toggle_two, toggle_three, toggle_four, grow_cycle
     
     if toggle_one.value() == 1:
+        print('phase 1')
         phase_one = True
+        grow_cycle = 1
     elif toggle_two.value() == 1:
         phase_two = True
+        grow_cycle = 2
     elif toggle_three.value() == 1:
         phase_three = True
+        grow_cycle = 3
     elif toggle_four.value() == 1:
         phase_four = True
+        grow_cycle = 4
     sleep(0.01)
-_thread.start_new_thread(phase_switch_thread, ())
 
 
 def light_controller(t):
@@ -82,29 +86,31 @@ def water_plants(t):
     
     # logic to dispense proper amounts based off switch status
     if toggle_one.value() == 1:
+        print('pumps on')
         pump_one.value(1)
-        sleep(10)
+        sleep(0)
         pump_one_total += seedling_ml
         pump_one.value(0)
         pump_two.value(1)
-        sleep(10)
+        sleep(0)
         pump_two_total += seedling_ml
         pump_two.value(0)
         pump_three.value(1)
-        sleep(10)
+        sleep(0)
         pump_three_total += seedling_ml
         pump_three.value(0)
     elif toggle_two.value() == 1 | toggle_three.value() == 1:  
         pump_one.value(1)
-        sleep(100)
+        sleep(1)
         pump_one_total += veg_mililiters
         pump_one.value(0)
         pump_two.value(1)
-        sleep(100)
+        sleep(1)
         pump_two_total += veg_mililiters
         pump_two.value(0)
         pump_three.value(1)
-        sleep(100)
+        sleep(1)
+        print("hi")
         pump_three_total += veg_mililiters
         pump_three.value(0)
     elif toggle_four.value() == 1:
@@ -118,6 +124,9 @@ def water_plants(t):
 
 def fertilizer(t):
     """Function that controls the dispensing of liquid fertilizers"""
+    
+    # global toggle switch state
+    global toggle_one, toggle_two, toggle_three, toggle_four, toggle_five
     
     # global pump control
     global fert_one, fert_two, fert_three
@@ -167,22 +176,22 @@ def fertilizer(t):
     fert_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=water_plants)  # timer to water every other day
 
     
-def display_lcd():
+def display_lcd(t):
     """Timed function that transmits data to LCDs"""
     
     # hex addresses for lcd(s)
     # SDA(8) SCL(9)
-    lcd_one = 0x27  # temperature f
-    lcd_two = 0x26  # temperature c
-    lcd_three = 0x25  # humidity
-    lcd_four = 0x23  # lights
+    lcd_one = 0x23  # temperature f
+    lcd_two = 0x25  # temperature c
+    lcd_three = 0x26  # humidity
+    lcd_four = 0x27  # lights
     
-    global send_hum, send_temp_c, send_temp_f, low_hum, low_temp_f, low_temp_c, light_time_on, light_time_off
+    global display_hum, display_c, display_f, low_hum, low_temp_f, low_temp_c, light_time_on, light_time_off, grow_cycle
     
-    lcd(lcd_one, str(send_temp_f), str(low_temp_f), 1)
-    lcd(lcd_two, str(send_temp_c), str(low_temp_c), 2)
-    lcd(lcd_three, str(send_hum), str(low_hum), 3) 
-    lcd(lcd_four, str(light_time_on), str(light_time_off), 4) 
+    lcd(lcd_one, str(display_f), str(low_temp_f), 1)
+    lcd(lcd_two, str(display_c), str(low_temp_c), 2)
+    lcd(lcd_three, str(display_hum), str(low_hum), 3) 
+    lcd(lcd_four, str(light_time_on), str(light_time_off), 4, str(grow_cycle)) 
         
     return
     
@@ -192,6 +201,7 @@ toggle_one = Pin(16, Pin.IN, Pin.PULL_DOWN)
 toggle_two = Pin(17, Pin.IN, Pin.PULL_DOWN)
 toggle_three = Pin(18, Pin.IN, Pin.PULL_DOWN)
 toggle_four = Pin(19, Pin.IN, Pin.PULL_DOWN)
+toggle_five = Pin(6, Pin.IN, Pin.PULL_DOWN)
 
 
 # global variables for switches
@@ -221,15 +231,17 @@ fert_three = Pin(22, Pin.OUT)
 stir_plate = Pin(12, Pin.OUT)
 
 # variables to start water and light cycles  
-water_plants()
-light_controller()
+water_plants(0)
+light_controller(0)
 display_timer = Timer(period=60_000, mode=Timer.PERIODIC, callback=display_lcd)  # updates lcd(s) every minute
+_thread.start_new_thread(phase_switch_thread, ())
 
 # low values
 # set to maximum values for initial running of program to establish low values
 low_temp_f = 212
 low_temp_c = 100
 low_hum = 100
+grow_cycle = 0
 
 # notify user that the program is running
 print("*****Program running*****")
@@ -241,6 +253,11 @@ while True:
     system_led = Pin(25, Pin.OUT)
     system_led.value(1)
     while True:  # change to number of plants
+        if toggle_one.value()| toggle_two.value() | toggle_three.value() | toggle_four.value() == 1:
+            water_plants(0)
+            light_controller(0)
+        elif toggle_five.value() == 1:
+            pass
         uart = UART(0, 115200)
         system_led.toggle()
         x = get_temp_hum()
@@ -281,4 +298,3 @@ while True:
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent
             pump_three_total = 0
-
