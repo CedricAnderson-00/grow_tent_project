@@ -8,6 +8,7 @@ import _thread
 
 # functions
 def main_body(switch):
+    """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
     global low_hum, low_temp_c, low_temp_f, light_time_on, light_time_off, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, system_monitoring
     
@@ -74,16 +75,19 @@ def phase_switch_thread():
     global phase_one, phase_two, phase_three, phase_four, toggle_one, toggle_two, toggle_three, toggle_four, grow_cycle
     
     if toggle_one.value() == 1:
-        print('phase 1')
+        sleep(0.01)
         phase_one = True
         grow_cycle = 1
     elif toggle_two.value() == 1:
+        sleep(0.01)
         phase_two = True
         grow_cycle = 2
     elif toggle_three.value() == 1:
+        sleep(0.01)
         phase_three = True
         grow_cycle = 3
     elif toggle_four.value() == 1:
+        sleep(0.01)
         phase_four = True
         grow_cycle = 4
     sleep(0.01)
@@ -96,13 +100,16 @@ def light_controller(t):
     
     if toggle_one.value() == 1 | toggle_two.value() == 1:
         tent_light_control.value(1)
+        sleep(0.01)
         hour_timer = Timer(period=3_600_000, mode=Timer.ONE_SHOT, callback=light_controller)  # 1 hour in milliseconds
         light_time_on +=1  
     elif toggle_three.value() == 1:
         tent_light_control.value(0)
+        sleep(0.01)
         veg_timer_on = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=lights_on)  # 12 hours in ms
     elif toggle_four.value() == 1:
         tent_light_control.value(0)
+        sleep(0.01)
     
     
 def lights_on(t):
@@ -113,6 +120,7 @@ def lights_on(t):
     global light_time_off, tent_light_control
     
     tent_light_control.value(1)
+    sleep(0.01)
     light_time_off += 12
     veg_timer_off = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=lights_off)  # 12 hours in ms
     
@@ -125,6 +133,7 @@ def lights_off(t):
     global light_time_on, tent_light_control
     
     tent_light_control.value(0)
+    sleep(0.01)
     light_time_on += 12
     light_controller()
     
@@ -151,32 +160,41 @@ def water_plants(t):
         sleep(0)
         pump_one_total += seedling_ml
         pump_one.value(0)
+        sleep(0.01)
         pump_two.value(1)
         sleep(0)
         pump_two_total += seedling_ml
         pump_two.value(0)
+        sleep(0.01)
         pump_three.value(1)
         sleep(0)
         pump_three_total += seedling_ml
         pump_three.value(0)
+        sleep(0.01)
     elif toggle_two.value() == 1 | toggle_three.value() == 1:  
         pump_one.value(1)
         sleep(1)
         pump_one_total += veg_mililiters
         pump_one.value(0)
+        sleep(0.01)
         pump_two.value(1)
         sleep(1)
         pump_two_total += veg_mililiters
         pump_two.value(0)
+        sleep(0.01)
         pump_three.value(1)
         sleep(1)
         print("hi")
         pump_three_total += veg_mililiters
         pump_three.value(0)
+        sleep(0.01)
     elif toggle_four.value() == 1:
         pump_one.value(0)
+        sleep(0.01)
         pump_two.value(0)
+        sleep(0.01)
         pump_three.value(0)
+        sleep(0.01)
     elif toggle_five.value() == 1:
         print("manual watering")
     
@@ -205,35 +223,45 @@ def fertilizer(t):
         stir_plate.value(1)
         sleep(20)
         stir_plate.value(0)
+        sleep(0.01)
         fert_one.value(1)
         sleep(10)
         fert_one_total += seedling_ml
         fert_one.value(0)
+        sleep(0.01)
         fert_two.value(1)
         sleep(10)
         fert_two_total += seedling_ml
         fert_two.value(0)
+        sleep(0.01)
         fert_three.value(1)
         sleep(10)
         fert_three_total += seedling_ml
         fert_three.value(0)
+        sleep(0.01)
     elif toggle_two.value() == 1 | toggle_three.value() == 1:  
         fert_one.value(1)
         sleep(100)
         fert_one_total += veg_mililiters
         fert_one.value(0)
+        sleep(0.01)
         fert_two.value(1)
         sleep(100)
         fert_two_total += veg_mililiters
         fert_two.value(0)
+        sleep(0.01)
         fert_three.value(1)
         sleep(100)
         fert_three_total += veg_mililiters
         fert_three.value(0)
+        sleep(0.01)
     elif toggle_four.value() == 1:
         fert_one.value(0)
+        sleep(0.01)
         fert_two.value(0)
+        sleep(0.01)
         pump_three.value(0)
+        sleep(0.01)
     
     fert_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=water_plants)  # timer to water every other day
 
@@ -248,14 +276,15 @@ def display_lcd(t):
     lcd_three = 0x26  # humidity
     lcd_four = 0x27  # lights
     
-    global send_hum, send_temp_c, send_temp_f, low_hum, low_temp_f, low_temp_c, light_time_on, light_time_off, grow_cycle, display_timer
+    global send_hum, send_temp_c, send_temp_f, low_hum, low_temp_f, low_temp_c, light_time_on, light_time_off, grow_cycle
     
     lcd(lcd_one, str(send_temp_f), str(low_temp_f), 1)
     lcd(lcd_two, str(send_temp_c), str(low_temp_c), 2)
     lcd(lcd_three, str(send_hum), str(low_hum), 3) 
     lcd(lcd_four, str(light_time_on), str(light_time_off), 4, str(grow_cycle)) 
     
-    display_timer 
+    display_timer = Timer(period=60_000, mode=Timer.ONE_SHOT, callback=display_lcd)
+     
 
 # toggle switch GPIO
 toggle_one = Pin(16, Pin.IN, Pin.PULL_DOWN)
@@ -296,7 +325,7 @@ send_temp_c = 0
 send_temp_f = 0
 
 # variables to start water and light cycles
-display_timer = Timer(period=30_000, mode=Timer.ONE_SHOT, callback=display_lcd) 
+display_timer = Timer(period=60_000, mode=Timer.ONE_SHOT, callback=display_lcd)
 _thread.start_new_thread(phase_switch_thread, ())
 
 # low values
