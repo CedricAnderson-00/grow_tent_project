@@ -106,7 +106,7 @@ def light_controller(t):
     elif toggle_three.value() == 1:
         tent_light_control.value(0)
         sleep(0.01)
-        veg_timer_on = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=lights_on)  # 12 hours in ms
+        large_timer_on = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=lights_on)  # 12 hours in ms
     elif toggle_four.value() == 1:
         tent_light_control.value(0)
         sleep(0.01)
@@ -122,7 +122,7 @@ def lights_on(t):
     tent_light_control.value(1)
     sleep(0.01)
     light_time_off += 12
-    veg_timer_off = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=lights_off)  # 12 hours in ms
+    large_timer_off = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=lights_off)  # 12 hours in ms
     
 
 def lights_off(t):
@@ -150,42 +150,41 @@ def water_plants(t):
     global pump_one_total, pump_two_total, pump_three_total
     
     # each pump is calibrated to always dispense a certain amount based off current phase per duty cycle
-    veg_mililiters = 250
-    seedling_ml = 10
+    large_mililiters = 250
+    small_ml = 10
     
     # logic to dispense proper amounts based off switch status
     if toggle_one.value() == 1:
-        print('pumps on')
         pump_one.value(1)
         sleep(0)
-        pump_one_total += seedling_ml
+        pump_one_total += small_ml
         pump_one.value(0)
         sleep(0.01)
         pump_two.value(1)
         sleep(0)
-        pump_two_total += seedling_ml
+        pump_two_total += small_ml
         pump_two.value(0)
         sleep(0.01)
         pump_three.value(1)
         sleep(0)
-        pump_three_total += seedling_ml
+        pump_three_total += small_ml
         pump_three.value(0)
         sleep(0.01)
     elif toggle_two.value() == 1 | toggle_three.value() == 1:  
         pump_one.value(1)
         sleep(1)
-        pump_one_total += veg_mililiters
+        pump_one_total += large_mililiters
         pump_one.value(0)
         sleep(0.01)
         pump_two.value(1)
         sleep(1)
-        pump_two_total += veg_mililiters
+        pump_two_total += large_mililiters
         pump_two.value(0)
         sleep(0.01)
         pump_three.value(1)
         sleep(1)
         print("hi")
-        pump_three_total += veg_mililiters
+        pump_three_total += large_mililiters
         pump_three.value(0)
         sleep(0.01)
     elif toggle_four.value() == 1:
@@ -196,10 +195,24 @@ def water_plants(t):
         pump_three.value(0)
         sleep(0.01)
     elif toggle_five.value() == 1:
-        print("manual watering")
+        pump_one.value(1)
+        sleep(0)
+        pump_one_total += small_ml
+        pump_one.value(0)
+        sleep(0.01)
+        pump_two.value(1)
+        sleep(0)
+        pump_two_total += small_ml
+        pump_two.value(0)
+        sleep(0.01)
+        pump_three.value(1)
+        sleep(0)
+        pump_three_total += small_ml
+        pump_three.value(0)
+        sleep(0.01)
     
     # recursion
-    water_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=fertilizer)  # timer to water every other day
+    water_timer = Timer(period=345_600_000, mode=Timer.ONE_SHOT, callback=fertilizer)  # timer to water four days
 
 
 def fertilizer(t):
@@ -215,8 +228,8 @@ def fertilizer(t):
     global fert_one_total, fert_two_total, fert_three_total, stir_plate
     
     # each pump is calibrated to always dispense a certain amount based off current phase per duty cycle
-    veg_mililiters = 250
-    seedling_ml = 10
+    large_mililiters = 250
+    small_ml = 10
     
     # same logic as water_plants()
     if toggle_one.value() == 1:
@@ -226,33 +239,33 @@ def fertilizer(t):
         sleep(0.01)
         fert_one.value(1)
         sleep(10)
-        fert_one_total += seedling_ml
+        fert_one_total += small_ml
         fert_one.value(0)
         sleep(0.01)
         fert_two.value(1)
         sleep(10)
-        fert_two_total += seedling_ml
+        fert_two_total += small_ml
         fert_two.value(0)
         sleep(0.01)
         fert_three.value(1)
         sleep(10)
-        fert_three_total += seedling_ml
+        fert_three_total += small_ml
         fert_three.value(0)
         sleep(0.01)
     elif toggle_two.value() == 1 | toggle_three.value() == 1:  
         fert_one.value(1)
         sleep(100)
-        fert_one_total += veg_mililiters
+        fert_one_total += large_mililiters
         fert_one.value(0)
         sleep(0.01)
         fert_two.value(1)
         sleep(100)
-        fert_two_total += veg_mililiters
+        fert_two_total += large_mililiters
         fert_two.value(0)
         sleep(0.01)
         fert_three.value(1)
         sleep(100)
-        fert_three_total += veg_mililiters
+        fert_three_total += large_mililiters
         fert_three.value(0)
         sleep(0.01)
     elif toggle_four.value() == 1:
@@ -263,7 +276,7 @@ def fertilizer(t):
         pump_three.value(0)
         sleep(0.01)
     
-    fert_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=water_plants)  # timer to water every other day
+    fert_timer = Timer(period=345_600_000, mode=Timer.ONE_SHOT, callback=water_plants)  # timer to water every four days
 
     
 def display_lcd(t):
@@ -350,7 +363,7 @@ while True:
             system_monitoring = True
             main_body(toggle_one)
         while toggle_two.value() == 1:
-            print("vegetation stage")
+            print("vegetation phase")
             system_monitoring = True
             main_body(toggle_two)
         while toggle_three.value() == 1:
