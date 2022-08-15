@@ -31,10 +31,10 @@ VALUES (
     'MSNL UK',
     NULL,
     8,
-    '2022-07-19'
-    '2022-08-04'
-    'Fox Farm Ocean Forest'
-    '0.30, 0.45, 0.05'
-    'Fox Farm Big Bloom'
+    '2022-07-19',
+    '2022-08-04',
+    'Fox Farm Ocean Forest',
+    '0.30, 0.45, 0.05',
+    'Fox Farm Big Bloom',
     '0.0, 0.5, 0.7'
   );)

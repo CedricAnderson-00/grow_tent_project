@@ -16,5 +16,6 @@ CREATE TABLE plants (
     fertilizer_npk VARCHAR(255),
     flowering_time_min INT,
     flowering_time_max INT,
+    planting_date DATE,
     arrival_date DATE
 );
