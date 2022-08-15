@@ -10,10 +10,10 @@ CREATE TABLE plants (
     medical_usage VARCHAR(255),
     genes VARCHAR(255),
     supplier VARCHAR(255),
-    soil_brand VARCHAR(255)
-    soil_npk VARCHAR(255)
-    fertilizer_name VARCHAR(255)
-    fertilizer_npk VARCHAR(255)
+    soil_brand VARCHAR(255),
+    soil_npk VARCHAR(255),
+    fertilizer_name VARCHAR(255),
+    fertilizer_npk VARCHAR(255),
     flowering_time_min INT,
     flowering_time_max INT,
     arrival_date DATE
