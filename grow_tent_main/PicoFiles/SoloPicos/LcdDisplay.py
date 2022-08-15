@@ -21,3 +21,4 @@ def lcd(hex_address, value_1, value_2, name):
         lcd.putstr(f"Light On: {value_1}h\nOff: {value_2}h")
     
     return
+

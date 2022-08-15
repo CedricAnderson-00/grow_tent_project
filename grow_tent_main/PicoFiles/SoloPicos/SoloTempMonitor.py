@@ -1,6 +1,3 @@
-# change to main.py when ready to upload to Pico
-# monitors and controls the activation of heating elements.
-
 from machine import Pin, Timer
 from time import sleep
 import dht
@@ -22,8 +19,14 @@ def display_lcd(t):
     lcd(lcd_one, str(temp_f), str(low_temp_f), 1)
     lcd(lcd_two, str(temp), str(low_temp_c), 2)
     lcd(lcd_three, str(hum), str(low_hum), 3)
-    #lcd(lcd_four, str(light_time_on), str(light_time_off), 4, str(grow_cycle))
+    lcd(lcd_four, str(light_time_on), str(light_time_off), 4)
 
+def light_counter(random):
+    """Function that increments light usage every hour"""
+    
+    global light_time_off, light_time_on
+    
+    light_time_on +=1
 
 # assign GPIO pin locations
 # emergency_cooling = Pin(18, Pin.OUT)
@@ -37,6 +40,8 @@ led_onboard = Pin(25, Pin.OUT)
 low_temp_c = 100
 low_temp_f = 212
 low_hum = 100
+light_time_on = 0
+light_time_off = 0
 
 # ensure all relays are off at the start of program
 dehumidifier.value(0)
@@ -44,7 +49,8 @@ hum_control.value(0)
 heat_control.value(0)
 
 # start display timer to display values every minute
-display_timer = Timer(period=10_000, mode=Timer.PERIODIC, callback=display_lcd)
+display_timer = Timer(period=10_000, mode=Timer.PERIODIC, callback=display_lcd)  # one minute timer
+light_timer = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=light_counter)  # one hour timer
 
 # while loop to continuosly monitor system
 while True:
@@ -91,3 +97,4 @@ while True:
         print("no reading from sensor")
         heat_control.value(0)
         hum_control.value(0)
+
