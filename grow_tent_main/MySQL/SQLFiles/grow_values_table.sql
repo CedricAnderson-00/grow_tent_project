@@ -9,6 +9,7 @@ CREATE TABLE grow_values (
     light_off DECIMAL(5, 2),
     soil_moisture INT,
     soil_ph INT,
+    program_time DATETIME,
     first_flower DATETIME,
     plant_id INT,
     FOREIGN KEY(plant_id) REFERENCES plants(id)
