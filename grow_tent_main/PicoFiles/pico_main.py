@@ -10,7 +10,7 @@ import _thread
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global low_hum, low_temp_c, low_temp_f, light_time_on, light_time_off, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f
+    global low_hum, low_temp_c, low_temp_f, light_time_on, light_time_off, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, fert_one_total, fert_two_total, fert_three_total
     
     while True:
     
@@ -44,22 +44,25 @@ def main_body(switch):
 
             # transfer values in tent state to master Pi
             if uart.any() == 1:
-                plant = 1, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil1, pump_one_total
+                plant = 1, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil1, pump_one_total, fert_one_total
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
                 pump_one_total = 0
+                fert_one_total = 0
                 
             elif uart.any() == 2:
-                plant = 2, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil2, pump_two_total
+                plant = 2, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil2, pump_two_total, fert_two_total
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
                 pump_two_total = 0
+                fert_two_total = 0
 
             elif uart.any() == 3:
-                plant = 3, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil3, pump_three_total
+                plant = 3, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil3, pump_three_total, fert_three_total
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
                 pump_three_total = 0
+                fert_three_total = 0
                 
         return
                 
