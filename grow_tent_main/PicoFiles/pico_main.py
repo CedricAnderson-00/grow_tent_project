@@ -10,17 +10,13 @@ import _thread
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global low_hum, low_temp_c, low_temp_f, light_time_on, light_time_off, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, system_monitoring
+    global low_hum, low_temp_c, low_temp_f, light_time_on, light_time_off, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f
     
     while True:
     
         # flash led so user knows system is monitoring
         system_led = Pin(25, Pin.OUT)
         system_led.value(1)
-        system_monitoring = True
-        water_plants(0)
-        light_controller(0)
-        display_lcd(0)
         while switch.value() == 1:
             if toggle_five.value() == 1:
                 water_plants(0)  
@@ -68,7 +64,6 @@ def main_body(switch):
         return
                 
 
-
 def phase_switch_thread():
     """Function that creates a thread to monitor toggle switches to change grow parameters"""
     
@@ -96,20 +91,18 @@ def phase_switch_thread():
 def light_controller(t):
     """Function that monitors toggle switch state and initializes a light patter IAW switch parameters"""
     
-    global light_time_on, tent_light_control, toggle_one, toggle_two, toggle_three, toggle_four
+    global light_time_on, tent_light_control, toggle_one, toggle_two, toggle_three, toggle_four, timer_one, light_time_off
     
     if toggle_one.value() == 1 | toggle_two.value() == 1:
         tent_light_control.value(1)
         sleep(0.01)
-        hour_timer = Timer(period=3_600_000, mode=Timer.ONE_SHOT, callback=light_controller)  # 1 hour in milliseconds
-        light_time_on +=1  
-    elif toggle_three.value() == 1:
-        tent_light_control.value(0)
-        sleep(0.01)
-        large_timer_on = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=lights_on)  # 12 hours in ms
+        light_time_on +=1
+    if toggle_three.value() == 1:
+        Timer.deinit(timer_one)
+        lights_off(0)
     elif toggle_four.value() == 1:
-        tent_light_control.value(0)
-        sleep(0.01)
+        Timer.deinit(timer_one)
+        lights_off(0)
     
     
 def lights_on(t):
@@ -118,7 +111,7 @@ def lights_on(t):
        """
     
     global light_time_off, tent_light_control
-    
+
     tent_light_control.value(1)
     sleep(0.01)
     light_time_off += 12
@@ -135,14 +128,14 @@ def lights_off(t):
     tent_light_control.value(0)
     sleep(0.01)
     light_time_on += 12
-    light_controller()
+    large_timer_off = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=lights_on)  # 12 hours in ms
     
     
 def water_plants(t):
     """Function to water each plant for a set amount of time depending on calibration.
        Uses recurrsion to start a timer to repeat in 48 hours
        """
-       
+        
     # global GPIO control   
     global pump_one, pump_two, pump_three, toggle_one, toggle_two, toggle_three, toggle_four
     
@@ -170,7 +163,7 @@ def water_plants(t):
         pump_three_total += small_ml
         pump_three.value(0)
         sleep(0.01)
-    elif toggle_two.value() == 1 | toggle_three.value() == 1:  
+    elif toggle_two.value() == 1:
         pump_one.value(1)
         sleep(1)
         pump_one_total += large_mililiters
@@ -183,7 +176,22 @@ def water_plants(t):
         sleep(0.01)
         pump_three.value(1)
         sleep(1)
-        print("hi")
+        pump_three_total += large_mililiters
+        pump_three.value(0)
+        sleep(0.01)
+    elif toggle_three.value() == 1:
+        pump_one.value(1)
+        sleep(1)
+        pump_one_total += large_mililiters
+        pump_one.value(0)
+        sleep(0.01)
+        pump_two.value(1)
+        sleep(1)
+        pump_two_total += large_mililiters
+        pump_two.value(0)
+        sleep(0.01)
+        pump_three.value(1)
+        sleep(1)
         pump_three_total += large_mililiters
         pump_three.value(0)
         sleep(0.01)
@@ -212,8 +220,9 @@ def water_plants(t):
         sleep(0.01)
     
     # recursion
-    water_timer = Timer(period=345_600_000, mode=Timer.ONE_SHOT, callback=fertilizer)  # timer to water four days
-
+    water_timer_switch = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=fertilizer)  # timer to water two days 
+    
+    return
 
 def fertilizer(t):
     """Function that controls the dispensing of liquid fertilizers"""
@@ -234,37 +243,37 @@ def fertilizer(t):
     # same logic as water_plants()
     if toggle_one.value() == 1:
         stir_plate.value(1)
-        sleep(20)
+        sleep(1)
         stir_plate.value(0)
         sleep(0.01)
         fert_one.value(1)
-        sleep(10)
+        sleep(1)
         fert_one_total += small_ml
         fert_one.value(0)
         sleep(0.01)
         fert_two.value(1)
-        sleep(10)
+        sleep(1)
         fert_two_total += small_ml
         fert_two.value(0)
         sleep(0.01)
         fert_three.value(1)
-        sleep(10)
+        sleep(1)
         fert_three_total += small_ml
         fert_three.value(0)
         sleep(0.01)
     elif toggle_two.value() == 1 | toggle_three.value() == 1:  
         fert_one.value(1)
-        sleep(100)
+        sleep(1)
         fert_one_total += large_mililiters
         fert_one.value(0)
         sleep(0.01)
         fert_two.value(1)
-        sleep(100)
+        sleep(1)
         fert_two_total += large_mililiters
         fert_two.value(0)
         sleep(0.01)
         fert_three.value(1)
-        sleep(100)
+        sleep(1)
         fert_three_total += large_mililiters
         fert_three.value(0)
         sleep(0.01)
@@ -276,28 +285,8 @@ def fertilizer(t):
         pump_three.value(0)
         sleep(0.01)
     
-    fert_timer = Timer(period=345_600_000, mode=Timer.ONE_SHOT, callback=water_plants)  # timer to water every four days
+    fert_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=water_plants)  # timer to fertilize every two days
 
-    
-def display_lcd(t):
-    """Timed function that transmits data to LCDs"""
-    
-    # hex addresses for lcd(s)
-    # SDA(8) SCL(9)
-    lcd_one = 0x23  # temperature f
-    lcd_two = 0x25  # temperature c
-    lcd_three = 0x26  # humidity
-    lcd_four = 0x27  # lights
-    
-    global send_hum, send_temp_c, send_temp_f, low_hum, low_temp_f, low_temp_c, light_time_on, light_time_off, grow_cycle
-    
-    lcd(lcd_one, str(send_temp_f), str(low_temp_f), 1)
-    lcd(lcd_two, str(send_temp_c), str(low_temp_c), 2)
-    lcd(lcd_three, str(send_hum), str(low_hum), 3) 
-    lcd(lcd_four, str(light_time_on), str(light_time_off), 4, str(grow_cycle)) 
-    
-    display_timer = Timer(period=60_000, mode=Timer.ONE_SHOT, callback=display_lcd)
-     
 
 # toggle switch GPIO
 toggle_one = Pin(16, Pin.IN, Pin.PULL_DOWN)
@@ -306,23 +295,15 @@ toggle_three = Pin(18, Pin.IN, Pin.PULL_DOWN)
 toggle_four = Pin(19, Pin.IN, Pin.PULL_DOWN)
 toggle_five = Pin(6, Pin.IN, Pin.PULL_DOWN)
 
-
-# global variables for switches
-phase_one = False
-phase_two = False
-phase_three = False
-phase_four = False
-system_monitoring = False
-    
 # timer values 
-light_time_on = 0000
-light_time_off = 0000
-pump_one_total = 0000
-pump_two_total = 0000
-pump_three_total = 0000
-fert_one_total = 0000
-fert_two_total = 0000
-fert_three_total = 0000
+light_time_on = 0
+light_time_off = 0
+pump_one_total = 0
+pump_two_total = 0
+pump_three_total = 0
+fert_one_total = 0
+fert_two_total = 0
+fert_three_total = 0
 
 # GPIO assignments
 tent_light_control = Pin(12, Pin.OUT)
@@ -333,12 +314,9 @@ fert_one = Pin(20, Pin.OUT)
 fert_two = Pin(21, Pin.OUT)
 fert_three = Pin(22, Pin.OUT)
 stir_plate = Pin(12, Pin.OUT)
-send_hum = 0
-send_temp_c = 0
-send_temp_f = 0
 
 # variables to start water and light cycles
-display_timer = Timer(period=60_000, mode=Timer.ONE_SHOT, callback=display_lcd)
+timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=light_controller)
 _thread.start_new_thread(phase_switch_thread, ())
 
 # low values
@@ -354,24 +332,28 @@ print("*****Program running*****")
 # loop that constantly runs to monitor state of UART
 while True:
 
-    # flash led so user knows system is monitoring
+    # solid LED to let user know system is in standby
     system_led = Pin(25, Pin.OUT)
     system_led.value(1)
     while True:  # change to number of plants
         while toggle_one.value() == 1:
-            print("seedling phase")
-            system_monitoring = True
+            water_plants(0)
+            light_controller(0)
+            phase_switch_thread()
             main_body(toggle_one)
         while toggle_two.value() == 1:
-            print("vegetation phase")
-            system_monitoring = True
+            water_plants(0)
+            light_controller(0)
+            phase_switch_thread()
             main_body(toggle_two)
         while toggle_three.value() == 1:
-            print("flowering phase")
-            system_monitoring = True
+            water_plants(0)
+            light_controller(0)
+            phase_switch_thread()
             main_body(toggle_three)
         while toggle_four.value() == 1:
-            print("harvesting")
-            system_monitoring = True
+            water_plants(0)
+            light_controller(0)
+            phase_switch_thread()
             main_body(toggle_four)
         
