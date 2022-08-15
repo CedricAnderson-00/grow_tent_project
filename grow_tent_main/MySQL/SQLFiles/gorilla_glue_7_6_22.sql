@@ -11,7 +11,12 @@ INSERT INTO plants (
     supplier,
     flowering_time_min,
     flowering_time_max,
-    arrival_date
+    arrival_date,
+    planting_date,
+    soil_brand,
+    soil_npk,
+    fertilizer_name,
+    fertilizer_npk
   )
 VALUES (
     'gorilla_glue',
@@ -27,4 +32,9 @@ VALUES (
     NULL,
     8,
     '2022-07-19'
+    '2022-08-04'
+    'Fox Farm Ocean Forest'
+    '0.30, 0.45, 0.05'
+    'Fox Farm Big Bloom'
+    '0.0, 0.5, 0.7'
   );)
