@@ -224,8 +224,7 @@ def water_plants(t):
     
     # recursion
     water_timer_switch = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=fertilizer)  # timer to water two days 
-    
-    return
+
 
 def fertilizer(t):
     """Function that controls the dispensing of liquid fertilizers"""
@@ -341,22 +340,18 @@ while True:
     while True:  # change to number of plants
         while toggle_one.value() == 1:
             water_plants(0)
-            light_controller(0)
             phase_switch_thread()
             main_body(toggle_one)
         while toggle_two.value() == 1:
             water_plants(0)
-            light_controller(0)
             phase_switch_thread()
             main_body(toggle_two)
         while toggle_three.value() == 1:
             water_plants(0)
-            light_controller(0)
             phase_switch_thread()
             main_body(toggle_three)
         while toggle_four.value() == 1:
             water_plants(0)
-            light_controller(0)
             phase_switch_thread()
             main_body(toggle_four)
         
