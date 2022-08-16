@@ -39,7 +39,7 @@ while True:
         database(plant2)
         database(plant3)
         
-        sleep(1_800_000)  # sleep for one hour
+        sleep(3_600)  # sleep for one hour
     except IndexError:
         print("check sent data from pico")
     except OSError:
