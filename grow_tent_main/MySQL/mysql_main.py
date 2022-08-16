@@ -44,3 +44,5 @@ def database(list):
                 print("complete")
     except Error as e:
         print(e)
+    except IndexError:
+        print("list values incorrect")
