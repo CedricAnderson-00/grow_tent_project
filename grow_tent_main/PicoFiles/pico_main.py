@@ -152,17 +152,17 @@ def water_plants(t):
     # logic to dispense proper amounts based off switch status
     if toggle_one.value() == 1:
         pump_one.value(1)
-        sleep(0)
+        sleep(1)
         pump_one_total += small_ml
         pump_one.value(0)
         sleep(0.01)
         pump_two.value(1)
-        sleep(0)
+        sleep(1)
         pump_two_total += small_ml
         pump_two.value(0)
         sleep(0.01)
         pump_three.value(1)
-        sleep(0)
+        sleep(1)
         pump_three_total += small_ml
         pump_three.value(0)
         sleep(0.01)
