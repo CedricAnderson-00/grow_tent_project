@@ -1,6 +1,3 @@
-# boilerplate code to establish a connection
-# needs to run as soon as program starts
-
 from getpass import getpass
 from mysql.connector import connect, Error
 from datetime import datetime
