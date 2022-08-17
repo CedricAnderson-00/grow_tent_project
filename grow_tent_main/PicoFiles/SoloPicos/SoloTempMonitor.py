@@ -64,22 +64,31 @@ while True:
         # logic to test current state of system
         if temp_f == 80:
             heat_control.value(0)
+            sleep(0.01)
             # emergency_cooling.value(0)
         elif temp_f > 85:
             heat_control.value(0)
+            sleep(0.01)
         elif temp_f < 78.5:  # the gap in temp is to reduce wear on relay
             heat_control.value(1)
+            sleep(0.01)
 
         # this logic will check humidity levels and operate relay
         if hum == 50:
             hum_control.value(0)
+            sleep(0.01)
             dehumidifier.value(0)
+            sleep(0.01)
         elif hum >= 55:
             dehumidifier.value(1)
+            sleep(0.01)
             hum_control.value(0)
+            sleep(0.01)
         elif hum < 46:
             hum_control.value(1)
+            sleep(0.01)
             dehumidifier.value(0)
+            sleep(0.01)
 
         # logic to get low and high values
         if hum < low_hum:
@@ -97,4 +106,5 @@ while True:
         print("no reading from sensor")
         heat_control.value(0)
         hum_control.value(0)
+        continue
 
