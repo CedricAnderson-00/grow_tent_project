@@ -32,6 +32,7 @@ def light_counter(random):
 # emergency_cooling = Pin(18, Pin.OUT)
 dehumidifier = Pin(19, Pin.OUT)
 heat_control = Pin(16, Pin.OUT)
+exhaust = Pin(18, Pin.OUT)
 hum_control = Pin(17, Pin.OUT)
 sensor = dht.DHT11(Pin(6))
 led_onboard = Pin(25, Pin.OUT)
@@ -62,29 +63,26 @@ while True:
         temp_f = temp * (9 / 5) + 32
 
         # logic to test current state of system
-        if temp_f == 80:
+        if temp_f > 85:
             heat_control.value(0)
             sleep(0.01)
             # emergency_cooling.value(0)
-        elif temp_f > 85:
-            heat_control.value(0)
-            sleep(0.01)
-        elif temp_f < 78.5:  # the gap in temp is to reduce wear on relay
+        elif temp_f < 80:  # the gap in temp is to reduce wear on relay
             heat_control.value(1)
             sleep(0.01)
 
         # this logic will check humidity levels and operate relay
-        if hum == 50:
+        if hum > 85:
             hum_control.value(0)
             sleep(0.01)
             dehumidifier.value(0)
             sleep(0.01)
-        elif hum >= 55:
+        elif hum > 86:
             dehumidifier.value(1)
             sleep(0.01)
             hum_control.value(0)
             sleep(0.01)
-        elif hum < 46:
+        elif hum < 80:
             hum_control.value(1)
             sleep(0.01)
             dehumidifier.value(0)
@@ -107,4 +105,5 @@ while True:
         heat_control.value(0)
         hum_control.value(0)
         continue
+
 
