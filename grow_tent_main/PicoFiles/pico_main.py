@@ -2,7 +2,6 @@ from time import sleep
 from machine import Timer, Pin, UART
 from TempHumiditySensor import get_temp_hum
 from SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_three
-from LcdDisplay import lcd
 import _thread
 
 
@@ -140,87 +139,52 @@ def water_plants(t):
        """
         
     # global GPIO control   
-    global pump_one, pump_two, pump_three, toggle_one, toggle_two, toggle_three, toggle_four
+    global pump_one, pump_two, pump_three, toggle_one, toggle_two, toggle_three, toggle_four, stir_plate
     
     # global dispensed values
     global pump_one_total, pump_two_total, pump_three_total
     
     # each pump is calibrated to always dispense a certain amount based off current phase per duty cycle
-    large_mililiters = 250
-    small_ml = 10
+    large_mililiters = 1001
+    small_ml = 22
     
     # logic to dispense proper amounts based off switch status
     if toggle_one.value() == 1:
         pump_one.value(1)
-        sleep(1)
+        sleep(20)
         pump_one_total += small_ml
-        pump_one.value(0)
-        sleep(0.01)
-        pump_two.value(1)
-        sleep(1)
         pump_two_total += small_ml
-        pump_two.value(0)
-        sleep(0.01)
-        pump_three.value(1)
-        sleep(1)
         pump_three_total += small_ml
-        pump_three.value(0)
-        sleep(0.01)
+        pump_one.value(0)
+        stir_plate.value(0)
     elif toggle_two.value() == 1:
         pump_one.value(1)
-        sleep(1)
+        sleep(910)
         pump_one_total += large_mililiters
-        pump_one.value(0)
-        sleep(0.01)
-        pump_two.value(1)
-        sleep(1)
         pump_two_total += large_mililiters
-        pump_two.value(0)
-        sleep(0.01)
-        pump_three.value(1)
-        sleep(1)
         pump_three_total += large_mililiters
-        pump_three.value(0)
-        sleep(0.01)
+        pump_one.value(0)
     elif toggle_three.value() == 1:
         pump_one.value(1)
-        sleep(1)
+        sleep(910)
         pump_one_total += large_mililiters
-        pump_one.value(0)
-        sleep(0.01)
-        pump_two.value(1)
-        sleep(1)
         pump_two_total += large_mililiters
-        pump_two.value(0)
-        sleep(0.01)
-        pump_three.value(1)
-        sleep(1)
         pump_three_total += large_mililiters
-        pump_three.value(0)
-        sleep(0.01)
-    elif toggle_four.value() == 1:
         pump_one.value(0)
-        sleep(0.01)
-        pump_two.value(0)
-        sleep(0.01)
-        pump_three.value(0)
-        sleep(0.01)
+    elif toggle_four.value() == 1:
+        pump_one.value(1)
+        sleep(910)
+        pump_one_total += large_mililiters
+        pump_two_total += large_mililiters
+        pump_three_total += large_mililiters
+        pump_one.value(0)
     elif toggle_five.value() == 1:
         pump_one.value(1)
-        sleep(0)
-        pump_one_total += small_ml
+        sleep(100)
+        pump_one_total += 110
+        pump_two_total += 110
+        pump_three_total += 110
         pump_one.value(0)
-        sleep(0.01)
-        pump_two.value(1)
-        sleep(0)
-        pump_two_total += small_ml
-        pump_two.value(0)
-        sleep(0.01)
-        pump_three.value(1)
-        sleep(0)
-        pump_three_total += small_ml
-        pump_three.value(0)
-        sleep(0.01)
     
     # recursion
     water_timer_switch = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=fertilizer)  # timer to water two days 
@@ -233,7 +197,7 @@ def fertilizer(t):
     global toggle_one, toggle_two, toggle_three, toggle_four, toggle_five
     
     # global pump control
-    global fert_one, fert_two, fert_three
+    global pump_two, fert_one, fert_two, fert_three
     
     # global dispensed amounts
     global fert_one_total, fert_two_total, fert_three_total, stir_plate
@@ -244,48 +208,37 @@ def fertilizer(t):
     
     # same logic as water_plants()
     if toggle_one.value() == 1:
-        stir_plate.value(1)
-        sleep(1)
-        stir_plate.value(0)
-        sleep(0.01)
-        fert_one.value(1)
-        sleep(1)
-        fert_one_total += small_ml
-        fert_one.value(0)
-        sleep(0.01)
-        fert_two.value(1)
-        sleep(1)
-        fert_two_total += small_ml
-        fert_two.value(0)
-        sleep(0.01)
-        fert_three.value(1)
-        sleep(1)
-        fert_three_total += small_ml
-        fert_three.value(0)
-        sleep(0.01)
+        water_plants(0)
     elif toggle_two.value() == 1 | toggle_three.value() == 1:  
-        fert_one.value(1)
-        sleep(1)
+        stir_plate.value(1)
+        sleep(60)
+        pump_two.value(1)
+        sleep(910)
+        pump_two.value(0)
+        stir_plate.value(0)
         fert_one_total += large_mililiters
-        fert_one.value(0)
-        sleep(0.01)
-        fert_two.value(1)
-        sleep(1)
         fert_two_total += large_mililiters
-        fert_two.value(0)
-        sleep(0.01)
-        fert_three.value(1)
-        sleep(1)
         fert_three_total += large_mililiters
-        fert_three.value(0)
-        sleep(0.01)
+    elif toggle_three.value() == 1:
+        stir_plate.value(1)
+        sleep(60)
+        pump_two.value(1)
+        sleep(910)
+        pump_two.value(0)
+        stir_plate.value(0)
+        fert_one_total += large_mililiters
+        fert_two_total += large_mililiters
+        fert_three_total += large_mililiters
     elif toggle_four.value() == 1:
-        fert_one.value(0)
-        sleep(0.01)
-        fert_two.value(0)
-        sleep(0.01)
-        pump_three.value(0)
-        sleep(0.01)
+        stir_plate.value(1)
+        sleep(60)
+        pump_two.value(1)
+        sleep(910)
+        pump_two.value(0)
+        stir_plate.value(0)
+        fert_one_total += large_mililiters
+        fert_two_total += large_mililiters
+        fert_three_total += large_mililiters
     
     fert_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=water_plants)  # timer to fertilize every two days
 
@@ -309,15 +262,16 @@ fert_three_total = 0
 
 # GPIO assignments
 tent_light_control = Pin(12, Pin.OUT)
-pump_one = Pin(15, Pin.OUT)
-pump_two = Pin(14, Pin.OUT)
+pump_one = Pin(15, Pin.OUT)  # water
+pump_two = Pin(14, Pin.OUT)  # fertilizer
 pump_three = Pin(13, Pin.OUT)
 fert_one = Pin(20, Pin.OUT)
 fert_two = Pin(21, Pin.OUT)
 fert_three = Pin(22, Pin.OUT)
-stir_plate = Pin(12, Pin.OUT)
+stir_plate = Pin(13, Pin.OUT)
 
 # variables to start water and light cycles
+tent_light_control.value(1)
 timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=light_controller)
 _thread.start_new_thread(phase_switch_thread, ())
 
