@@ -13,3 +13,4 @@ readDelay = 0.5
 while True:
     moisture = (max_moisture-soil.read_u16()) * 100 / (max_moisture - min_moisture)
     utime.sleep(readDelay)
+    print(moisture)
