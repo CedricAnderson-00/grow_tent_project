@@ -48,9 +48,10 @@ light_time_off = 0
 dehumidifier.value(0)
 hum_control.value(0)
 heat_control.value(0)
+exhaust.value(0)
 
 # start display timer to display values every minute
-display_timer = Timer(period=10_000, mode=Timer.PERIODIC, callback=display_lcd)  # one minute timer
+display_timer = Timer(period=20_000, mode=Timer.PERIODIC, callback=display_lcd)  # one minute timer
 light_timer = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=light_counter)  # one hour timer
 
 # while loop to continuosly monitor system
@@ -63,26 +64,29 @@ while True:
         temp_f = temp * (9 / 5) + 32
 
         # logic to test current state of system
-        if temp_f > 85:
+        if temp_f > 82:
             heat_control.value(0)
             sleep(0.01)
-            # emergency_cooling.value(0)
-        elif temp_f < 80:  # the gap in temp is to reduce wear on relay
+            exhaust.value(0)
+            if temp_f > 86.5:
+                exhaust.value(1)
+                sleep(15)
+        elif temp_f < 75:  # the gap in temp is to reduce wear on relay
             heat_control.value(1)
             sleep(0.01)
 
         # this logic will check humidity levels and operate relay
-        if hum > 85:
+        if hum > 55:
             hum_control.value(0)
             sleep(0.01)
             dehumidifier.value(0)
             sleep(0.01)
-        elif hum > 86:
-            dehumidifier.value(1)
-            sleep(0.01)
-            hum_control.value(0)
-            sleep(0.01)
-        elif hum < 80:
+            if hum >= 63:
+                dehumidifier.value(1)
+                sleep(0.01)
+                hum_control.value(0)
+                sleep(0.01)
+        elif hum < 50:
             hum_control.value(1)
             sleep(0.01)
             dehumidifier.value(0)
