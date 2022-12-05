@@ -16,6 +16,7 @@ def main_body(switch):
         # flash led so user knows system is monitoring
         system_led = Pin(25, Pin.OUT)
         system_led.value(1)
+        light_controller(1)
         while switch.value() == 1:
             if toggle_five.value() == 1:
                 water_plants(0)  
@@ -43,51 +44,26 @@ def main_body(switch):
 
             # transfer values in tent state to master Pi
             if uart.any() == 1:
-                plant = 1, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil1, pump_one_total, fert_one_total
+                plant = 1, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil1, pump_one_total
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
                 pump_one_total = 0
-                fert_one_total = 0
                 
             elif uart.any() == 2:
-                plant = 2, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil2, pump_two_total, fert_two_total
+                plant = 2, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil2, pump_two_total
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
                 pump_two_total = 0
-                fert_two_total = 0
 
             elif uart.any() == 3:
-                plant = 3, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil3, pump_three_total, fert_three_total
+                plant = 3, send_temp_f, send_temp_c, light_time_on, light_time_off, send_hum, soil3, pump_three_total
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
                 pump_three_total = 0
-                fert_three_total = 0
+                
+            sleep(0.1)
                 
         return
-                
-
-def phase_switch_thread():
-    """Function that creates a thread to monitor toggle switches to change grow parameters"""
-    
-    global phase_one, phase_two, phase_three, phase_four, toggle_one, toggle_two, toggle_three, toggle_four, grow_cycle
-    
-    if toggle_one.value() == 1:
-        sleep(0.01)
-        phase_one = True
-        grow_cycle = 1
-    elif toggle_two.value() == 1:
-        sleep(0.01)
-        phase_two = True
-        grow_cycle = 2
-    elif toggle_three.value() == 1:
-        sleep(0.01)
-        phase_three = True
-        grow_cycle = 3
-    elif toggle_four.value() == 1:
-        sleep(0.01)
-        phase_four = True
-        grow_cycle = 4
-    sleep(0.01)
 
 
 def light_controller(t):
@@ -114,6 +90,7 @@ def lights_on(t):
     
     global light_time_off, tent_light_control
 
+    # add a condition check here
     tent_light_control.value(1)
     sleep(0.01)
     light_time_off += 12
@@ -139,108 +116,54 @@ def water_plants(t):
        """
         
     # global GPIO control   
-    global pump_one, pump_two, pump_three, toggle_one, toggle_two, toggle_three, toggle_four, stir_plate
+    global pump_one, pump_two, pump_three, toggle_one, toggle_two, toggle_three, toggle_four
     
     # global dispensed values
     global pump_one_total, pump_two_total, pump_three_total
     
     # each pump is calibrated to always dispense a certain amount based off current phase per duty cycle
-    large_mililiters = 1001
-    small_ml = 22
+    large_mililiters = 550
+    small_ml = 100
     
     # logic to dispense proper amounts based off switch status
     if toggle_one.value() == 1:
         pump_one.value(1)
-        sleep(20)
+        sleep(10)
         pump_one_total += small_ml
         pump_two_total += small_ml
         pump_three_total += small_ml
         pump_one.value(0)
-        stir_plate.value(0)
     elif toggle_two.value() == 1:
         pump_one.value(1)
-        sleep(910)
+        sleep(55)
         pump_one_total += large_mililiters
         pump_two_total += large_mililiters
         pump_three_total += large_mililiters
         pump_one.value(0)
     elif toggle_three.value() == 1:
         pump_one.value(1)
-        sleep(910)
+        sleep(55)
         pump_one_total += large_mililiters
         pump_two_total += large_mililiters
         pump_three_total += large_mililiters
         pump_one.value(0)
     elif toggle_four.value() == 1:
         pump_one.value(1)
-        sleep(910)
+        sleep(55)
         pump_one_total += large_mililiters
         pump_two_total += large_mililiters
         pump_three_total += large_mililiters
         pump_one.value(0)
     elif toggle_five.value() == 1:
         pump_one.value(1)
-        sleep(100)
+        sleep(10)
         pump_one_total += 110
         pump_two_total += 110
         pump_three_total += 110
         pump_one.value(0)
     
     # recursion
-    water_timer_switch = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=fertilizer)  # timer to water two days 
-
-
-def fertilizer(t):
-    """Function that controls the dispensing of liquid fertilizers"""
-    
-    # global toggle switch state
-    global toggle_one, toggle_two, toggle_three, toggle_four, toggle_five
-    
-    # global pump control
-    global pump_two, fert_one, fert_two, fert_three
-    
-    # global dispensed amounts
-    global fert_one_total, fert_two_total, fert_three_total, stir_plate
-    
-    # each pump is calibrated to always dispense a certain amount based off current phase per duty cycle
-    large_mililiters = 250
-    small_ml = 10
-    
-    # same logic as water_plants()
-    if toggle_one.value() == 1:
-        water_plants(0)
-    elif toggle_two.value() == 1 | toggle_three.value() == 1:  
-        stir_plate.value(1)
-        sleep(60)
-        pump_two.value(1)
-        sleep(910)
-        pump_two.value(0)
-        stir_plate.value(0)
-        fert_one_total += large_mililiters
-        fert_two_total += large_mililiters
-        fert_three_total += large_mililiters
-    elif toggle_three.value() == 1:
-        stir_plate.value(1)
-        sleep(60)
-        pump_two.value(1)
-        sleep(910)
-        pump_two.value(0)
-        stir_plate.value(0)
-        fert_one_total += large_mililiters
-        fert_two_total += large_mililiters
-        fert_three_total += large_mililiters
-    elif toggle_four.value() == 1:
-        stir_plate.value(1)
-        sleep(60)
-        pump_two.value(1)
-        sleep(910)
-        pump_two.value(0)
-        stir_plate.value(0)
-        fert_one_total += large_mililiters
-        fert_two_total += large_mililiters
-        fert_three_total += large_mililiters
-    
-    fert_timer = Timer(period=172_800_000, mode=Timer.ONE_SHOT, callback=water_plants)  # timer to fertilize every two days
+    water_timer_switch = Timer(period=43_200_000, mode=Timer.PERIODIC, callback=water_plants)  # timer to water every 12 hrs 43200000
 
 
 # toggle switch GPIO
@@ -256,24 +179,21 @@ light_time_off = 0
 pump_one_total = 0
 pump_two_total = 0
 pump_three_total = 0
-fert_one_total = 0
-fert_two_total = 0
-fert_three_total = 0
 
 # GPIO assignments
 tent_light_control = Pin(12, Pin.OUT)
 pump_one = Pin(15, Pin.OUT)  # water
-pump_two = Pin(14, Pin.OUT)  # fertilizer
-pump_three = Pin(13, Pin.OUT)
-fert_one = Pin(20, Pin.OUT)
-fert_two = Pin(21, Pin.OUT)
-fert_three = Pin(22, Pin.OUT)
-stir_plate = Pin(13, Pin.OUT)
+
+# turn off relays to prevent short in circuit
+pump_one.value(0)
+tent_light_control.value(0)
+sleep(1)
 
 # variables to start water and light cycles
 tent_light_control.value(1)
+water_plants(1)
 timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=light_controller)
-_thread.start_new_thread(phase_switch_thread, ())
+
 
 # low values
 # set to maximum values for initial running of program to establish low values
@@ -293,19 +213,12 @@ while True:
     system_led.value(1)
     while True:  # change to number of plants
         while toggle_one.value() == 1:
-            water_plants(0)
-            phase_switch_thread()
             main_body(toggle_one)
         while toggle_two.value() == 1:
-            water_plants(0)
-            phase_switch_thread()
             main_body(toggle_two)
         while toggle_three.value() == 1:
-            water_plants(0)
-            phase_switch_thread()
+            lights_off(1)
             main_body(toggle_three)
         while toggle_four.value() == 1:
-            water_plants(0)
-            phase_switch_thread()
             main_body(toggle_four)
         
