@@ -77,11 +77,11 @@ def light_controller(t):
             sleep(0.01)
             light_time_on +=1
         if toggle_three.value() == 1:
-            Timer.deinit(timer_one)
             lights_off(0)
+            Timer.deinit(timer_one)
         elif toggle_four.value() == 1:
-            Timer.deinit(timer_one)
             lights_off(0)
+            Timer.deinit(timer_one)
     except: NameError
     
 def lights_on(t):
