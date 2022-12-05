@@ -9,7 +9,7 @@ import _thread
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global low_hum, low_temp_c, low_temp_f, light_time_on, light_time_off, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, fert_one_total, fert_two_total, fert_three_total
+    global low_hum, low_temp_c, low_temp_f, light_time_on, light_time_off, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, 
     
     while True:
     
@@ -71,17 +71,18 @@ def light_controller(t):
     
     global light_time_on, tent_light_control, toggle_one, toggle_two, toggle_three, toggle_four, timer_one, light_time_off
     
-    if toggle_one.value() == 1 | toggle_two.value() == 1:
-        tent_light_control.value(1)
-        sleep(0.01)
-        light_time_on +=1
-    if toggle_three.value() == 1:
-        Timer.deinit(timer_one)
-        lights_off(0)
-    elif toggle_four.value() == 1:
-        Timer.deinit(timer_one)
-        lights_off(0)
-    
+    try:
+        if toggle_one.value() == 1 | toggle_two.value() == 1:
+            tent_light_control.value(1)
+            sleep(0.01)
+            light_time_on +=1
+        if toggle_three.value() == 1:
+            Timer.deinit(timer_one)
+            lights_off(0)
+        elif toggle_four.value() == 1:
+            Timer.deinit(timer_one)
+            lights_off(0)
+    except: NameError
     
 def lights_on(t):
     """lights_on() turns tent light on and then waits a user-defined amount of time. 
@@ -116,7 +117,7 @@ def water_plants(t):
        """
         
     # global GPIO control   
-    global pump_one, pump_two, pump_three, toggle_one, toggle_two, toggle_three, toggle_four
+    global pump_one, toggle_one, toggle_two, toggle_three, toggle_four
     
     # global dispensed values
     global pump_one_total, pump_two_total, pump_three_total
@@ -217,8 +218,9 @@ while True:
         while toggle_two.value() == 1:
             main_body(toggle_two)
         while toggle_three.value() == 1:
-            lights_off(1)
+            light_controller(1)
             main_body(toggle_three)
         while toggle_four.value() == 1:
+            light_controller(1)
             main_body(toggle_four)
         
