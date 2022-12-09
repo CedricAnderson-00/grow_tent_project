@@ -77,9 +77,7 @@ def system_controller(t):
 def flowering_light_control():
     """Function that turns on/off tent lights based on system time"""
     
-    global system_timer, tent_light_control
-    
-    light_redundancy_check = 0
+    global system_timer, tent_light_control, light_redundancy_check
     
     if system_timer == 12:
         if light_redundancy_check == 0:
@@ -120,18 +118,15 @@ def water_plants():
     """Function that uses system time to water plants at 12 hour intervals"""
         
     # global GPIO control   
-    global pump_one, system_timer
+    global pump_one, system_timer, water_redundancy_check
     
     # global dispensed values
     global pump_one_total, pump_two_total, pump_three_total
-    
-    # redundancy check to prevent multiple waterings
-    water_redundancy_check = 0
-    
+
     if system_timer == 12:
         if water_redundancy_check == 0:
             pump_one.value(1)
-            sleep(55)
+            sleep(5)
             pump_one.value(0)
             pump_one_total += 500
             pump_two_total += 500
@@ -161,9 +156,8 @@ light_time_off = 0
 pump_one_total = 0
 pump_two_total = 0
 pump_three_total = 0
-fert_one_total = 0
-fert_two_total = 0
-fert_three_total = 0
+water_redundancy_check = 0
+light_redundancy_check = 0
 
 # GPIO assignments
 tent_light_control = Pin(12, Pin.OUT)
@@ -207,4 +201,3 @@ while True:
         while toggle_four.value() == 1:
             tent_light_control.value(0)
             main_body(toggle_four)
-        
