@@ -8,7 +8,7 @@ from SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_thr
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global low_hum, low_temp_c, low_temp_f, system_timer, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, pump_one
+    global low_hum, low_temp_c, low_temp_f, system_timer, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, pump_one, file
     
     while True:
     
@@ -16,7 +16,8 @@ def main_body(switch):
         system_led = Pin(25, Pin.OUT)
         system_led.value(1)
         while switch.value() == 1:
-            if toggle_five.value() == 1:
+            database()
+            if toggle_five.value() == 1:  # manual water
                 pump_one.value(1)
                 sleep(10)
                 pump_one.value(0)  
@@ -143,6 +144,27 @@ def water_plants():
             water_redundancy_check = 0
     
 
+
+def database():
+    """Function that creates a .txt file to store system time.
+       Reads data from file to continue system_timer
+       """
+    
+    global file, system_timer
+    
+    counter = 0
+
+    # avoids reading the file after system startup
+    if counter == 0:
+        file = open("database.txt","r")
+        system_timer = int(file.read())
+        file.close()
+        counter += 1
+    if counter >= 1:
+        file = open("database.txt","w")
+        file.write(str(system_timer))
+        file.close()
+
 # toggle switch GPIO
 toggle_one = Pin(16, Pin.IN, Pin.PULL_DOWN)
 toggle_two = Pin(17, Pin.IN, Pin.PULL_DOWN)
@@ -173,13 +195,15 @@ stir_plate = Pin(13, Pin.OUT)
 tent_light_control.value(1)
 timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=system_controller)
 
-
 # low values
 # set to maximum values for initial running of program to establish low values
 low_temp_f = 212
 low_temp_c = 100
 low_hum = 100
 grow_cycle = 0
+
+# establish system time
+database()
 
 # notify user that the program is running
 print("*****Program running*****")
@@ -197,6 +221,7 @@ while True:
             main_body(toggle_two)
         while toggle_three.value() == 1:
             tent_light_control.value(0)
+            system_timer = 0
             main_body(toggle_three)
         while toggle_four.value() == 1:
             tent_light_control.value(0)
