@@ -127,7 +127,7 @@ def water_plants():
     if system_timer == 12:
         if water_redundancy_check == 0:
             pump_one.value(1)
-            sleep(5)
+            sleep(25)
             pump_one.value(0)
             pump_one_total += 500
             pump_two_total += 500
@@ -136,7 +136,7 @@ def water_plants():
     if system_timer == 24:
         if water_redundancy_check == 1:
             pump_one.value(1)
-            sleep(55)
+            sleep(25)
             pump_one.value(0)
             pump_one_total += 500
             pump_two_total += 500
@@ -221,8 +221,8 @@ while True:
             main_body(toggle_two)
         while toggle_three.value() == 1:
             tent_light_control.value(0)
-            system_timer = 0
             main_body(toggle_three)
         while toggle_four.value() == 1:
             tent_light_control.value(0)
             main_body(toggle_four)
+
