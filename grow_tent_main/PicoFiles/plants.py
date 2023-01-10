@@ -3,7 +3,7 @@
 class Plants:
     
     # Class attribute
-    species = "Cannabis"
+    species = "Plant"
     
     def __init__(self, id, temp_f, temp_c, light_on, light_off, hum, soil, water):
         self.id = id
