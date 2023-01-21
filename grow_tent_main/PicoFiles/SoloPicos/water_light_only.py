@@ -2,68 +2,101 @@ from machine import Pin, Timer
 from time import sleep
 
 
-def lights_on(t):
-    """lights_on() turns tent light on and then waits a user-defined amount of time. 
-       Adds time off to the global variable. After Timer is complete, calls lights_off()
-       """
+def system_controller(t):
+    """Function that adds 1 hour to system timer to control time based processes"""
     
-    global light
+    global system_timer
     
-    try:
-        light.value(1)
-        sleep(0.01)
-        large_timer_off = Timer(period=64_800_000, mode=Timer.ONE_SHOT, callback=lights_off)  # 18 hours in ms
-        Timer.deinit(flower_timer_on)
-        Timer.deinit(flower_timer_off)
-        
-    except: NameError
+    system_timer += 1
 
-def lights_off(t):
-    """lights_off() turns tent light off and then waits a user-defined amount of time. 
-       Adds time on to the global variable. After Timer is complete, calls lights_on()
+
+def light_controller():
+    """function that monitors system_timer to control the light state. Only used when flowering_light is '0'
        """
-       
-    global light
     
-    light.value(0)
-    sleep(0.01)
-    large_timer_on = Timer(period=21_600_000, mode=Timer.ONE_SHOT, callback=lights_on)  # 6 hours in ms
+    global light, system_timer, light_redundancy_check
     
-    
-def water_plants(t):
-    """Function to water each plant for a set amount of time depending on calibration.
-       Uses recurrsion to start a timer to repeat in 48 hours
-       """
+    if flowering_light.value() == 0:
+        if system_timer == 18:
+            if light_redundancy_check == 0:
+                light.value(0)
+                light_redundancy_check += 1
+        if system_timer >= 24:
+            if light_redundancy_check == 1:
+                light.value(1)
+                light_redundancy_check = 0
+                system_timer = 0
+               
+
+def water_plants():
+    """Function that uses system time to water plants at 12 hour intervals"""
         
     # global GPIO control   
-    global water
-
-    water.value(1)
-    sleep(55)
-    water.value(0)
+    global water, system_timer, water_redundancy_check
     
-    # recursion timer
-    water_timer_switch = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=water_plants)  # timer to every 12hrs
+    if flowering_light.value() == 0:
+        if system_timer == 12:
+            if water_redundancy_check == 0:
+                water.value(1)
+                sleep(25)
+                water.value(0)
+                water_redundancy_check += 1
+        if system_timer >= 24:
+            if water_redundancy_check == 1:
+                water_redundancy_check = 0
 
 
-def flower_light_off(t):
-    """ Function that switches light schedule to 12/12 """
+def flowering_water_plants():
+    """Function that uses system time to water plants at 12 hour intervals"""
+        
+    # global GPIO control   
+    global water, system_timer, water_redundancy_check
+
+    if system_timer == 12:
+        if water_redundancy_check == 0:
+            water.value(1)
+            sleep(55)
+            water.value(0)
+            water_redundancy_check += 1
+    if system_timer >= 24:
+        if water_redundancy_check == 1:
+            water_redundancy_check = 0
+
+
+def flowering_light_control():
+    """Function that turns on/off tent lights based on system time"""
     
-    try:
-        global light, large_timer_on, large_timer_off
-        light.value(0)
-        sleep(0.01)
-        flower_timer_on = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=flower_light_on)  # 12 hours in ms
-        Timer.deinit(large_timer_on)
-        Timer.deinit(large_timer_off)
-    except: NameError
-
-def flower_light_on(t):
-    """ Function that turns lights on for 12/12 light schedule """
-    global light
-    light.value(1)
-    flower_timer_off = Timer(period=43_200_000, mode=Timer.ONE_SHOT, callback=flower_light_off)  # 12 hours in ms
+    global system_timer, tent_light_control, light_redundancy_check
     
+    if system_timer == 12:
+        if light_redundancy_check == 0:
+            tent_light_control.value(1)
+            light_redundancy_check += 1
+    if system_timer >= 24:
+        if light_redundancy_check == 1:
+            tent_light_control.value(0)
+            light_redundancy_check = 0
+            system_timer = 0
+
+
+def database():
+    """Function that creates a .txt file to store system time.
+       Reads data from file to continue system_timer
+       """
+    
+    global file, system_timer, counter
+    
+    # avoids reading the file after system startup
+    if counter == 0:
+        file = open("database.txt","r")
+        system_timer = int(file.read())
+        file.close()
+        counter += 1
+    if counter >= 1:
+        file = open("database.txt","w")
+        file.write(str(system_timer))
+        file.close()
+
 
 def main_loop():
     """ Main loop that monitors flowering switch to change cycles """
@@ -71,10 +104,14 @@ def main_loop():
     while flowering_light.value() != 1:
 
         led_onboard.toggle()
+        water_plants()
+        light_controller()
+        database()
         if manual_water.value() == 1:
             water.value(1)
             sleep(10)
             water.value(0)
+            water_plants()
         sleep(0.5)
         
     if flowering_light.value() == 1:
@@ -94,9 +131,11 @@ def main_loop():
         
         # start flowering phase
         if flowering_light.value() == 1:
-            flower_light_off(1)
             while flowering_light.value() == 1:
                 led_onboard.toggle()
+                flowering_water_plants()
+                flowering_light_control()
+                database()
                 if manual_water.value() == 1:
                     water.value(1)
                     sleep(10)
@@ -104,7 +143,7 @@ def main_loop():
                 sleep(0.5)
             
         # Turn lights on after flowering phase    
-        lights_on(1)
+        light.value(1)
     
 # assign GPIO pin locations
 manual_water = Pin(2, Pin.IN, Pin.PULL_DOWN)
@@ -113,9 +152,19 @@ water = Pin(1, Pin.OUT)
 light = Pin(0, Pin.OUT)
 led_onboard = Pin(25, Pin.OUT)
 
+# establish initial values for system
+counter = 0
+system_timer = 0
+water_redundancy_check = 1
+light_redundancy_check = 1
+
+# get values from database()
+database()
+light.value(1)
+
 # Turn lights on at 18/6 and water plants
-lights_on(1)
-water_plants(1)
+timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=system_controller)
+
 
 # while loop to enter system monitoring
 #will not stop program because flowering switch is off
