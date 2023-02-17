@@ -86,7 +86,7 @@ def flowering_light_control():
             light_redundancy_check += 1
     if system_timer == 24:
         if light_redundancy_check == 1:
-            tent_light_control.value(0)
+            tent_light_control.value(1)
             light_redundancy_check = 0
             system_timer = 0
 
@@ -127,7 +127,7 @@ def water_plants():
     if system_timer == 12:
         if water_redundancy_check == 0:
             pump_one.value(1)
-            sleep(25)
+            sleep(55)
             pump_one.value(0)
             pump_one_total += 500
             pump_two_total += 500
@@ -135,12 +135,6 @@ def water_plants():
             water_redundancy_check += 1
     if system_timer == 24:
         if water_redundancy_check == 1:
-            pump_one.value(1)
-            sleep(25)
-            pump_one.value(0)
-            pump_one_total += 500
-            pump_two_total += 500
-            pump_three_total += 500
             water_redundancy_check = 0
     
 
@@ -150,19 +144,21 @@ def database():
        Reads data from file to continue system_timer
        """
     
-    global file, system_timer
-    
-    counter = 0
+    global system_timer, counter, light_redundancy_check, tent_light_control, database_values, light_value_database
 
     # avoids reading the file after system startup
     if counter == 0:
         file = open("database.txt","r")
-        system_timer = int(file.read())
+        database = str(file.read())
+        database_values = database.split(", ")
         file.close()
         counter += 1
     if counter >= 1:
         file = open("database.txt","w")
-        file.write(str(system_timer))
+        light_value_database = tent_light_control.value()
+        file.write(str(system_timer) + ", ")
+        file.write(str(light_redundancy_check) + ", ")
+        file.write(str(light_value_database))
         file.close()
 
 # toggle switch GPIO
@@ -174,12 +170,14 @@ toggle_five = Pin(6, Pin.IN, Pin.PULL_DOWN)
 
 # timer values 
 system_timer = 0
+counter = 0
 light_time_off = 0
 pump_one_total = 0
 pump_two_total = 0
 pump_three_total = 0
 water_redundancy_check = 0
 light_redundancy_check = 0
+database_values = []
 
 # GPIO assignments
 tent_light_control = Pin(12, Pin.OUT)
@@ -192,7 +190,6 @@ fert_three = Pin(22, Pin.OUT)
 stir_plate = Pin(13, Pin.OUT)
 
 # variables to start water and light cycles
-tent_light_control.value(1)
 timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=system_controller)
 
 # low values
@@ -204,6 +201,13 @@ grow_cycle = 0
 
 # establish system time
 database()
+
+# Assign values from database() to respected variable
+system_timer = int(database_values[0])
+water_redundancy_check = int(database_values[1])
+light_redundancy_check = int(database_values[1])
+initial_light_reading = int(database_values[2])
+tent_light_control.value(initial_light_reading)
 
 # notify user that the program is running
 print("*****Program running*****")
@@ -220,9 +224,8 @@ while True:
         while toggle_two.value() == 1:
             main_body(toggle_two)
         while toggle_three.value() == 1:
-            tent_light_control.value(0)
             main_body(toggle_three)
         while toggle_four.value() == 1:
-            tent_light_control.value(0)
             main_body(toggle_four)
+
 
