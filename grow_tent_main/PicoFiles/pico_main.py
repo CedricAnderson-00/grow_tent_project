@@ -24,7 +24,7 @@ def main_body(switch):
             uart = UART(0, 115200)
             system_led.toggle()
             water_plants()
-            flowering_light_control()
+            light_controller()
             x = get_temp_hum()
             send_temp_c = x[0]
             send_temp_f = x[1]
@@ -75,20 +75,51 @@ def system_controller(t):
     system_timer += 1
     
 
-def flowering_light_control():
+def light_controller():
     """Function that turns on/off tent lights based on system time"""
     
     global system_timer, tent_light_control, light_redundancy_check
     
-    if system_timer == 12:
-        if light_redundancy_check == 0:
-            tent_light_control.value(1)
-            light_redundancy_check += 1
-    if system_timer == 24:
-        if light_redundancy_check == 1:
-            tent_light_control.value(1)
-            light_redundancy_check = 0
-            system_timer = 0
+    if toggle_one.value() == 1:
+        if system_timer == 12:
+            if light_redundancy_check == 0:
+                tent_light_control.value(1)
+                light_redundancy_check += 1
+        if system_timer == 24:
+            if light_redundancy_check == 1:
+                tent_light_control.value(1)
+                light_redundancy_check = 0
+                system_timer = 0
+    if toggle_two.value() == 1:
+        if system_timer == 12:
+            if light_redundancy_check == 0:
+                tent_light_control.value(1)
+                light_redundancy_check += 1
+        if system_timer == 24:
+            if light_redundancy_check == 1:
+                tent_light_control.value(1)
+                light_redundancy_check = 0
+                system_timer = 0
+    if toggle_three.value() == 1:
+        if system_timer == 12:
+            if light_redundancy_check == 0:
+                tent_light_control.value(0)
+                light_redundancy_check += 1
+        if system_timer == 24:
+            if light_redundancy_check == 1:
+                tent_light_control.value(1)
+                light_redundancy_check = 0
+                system_timer = 0
+    if toggle_four.value() == 1:
+        if system_timer == 12:
+            if light_redundancy_check == 0:
+                tent_light_control.value(0)
+                light_redundancy_check += 1
+        if system_timer == 24:
+            if light_redundancy_check == 1:
+                tent_light_control.value(0)
+                light_redundancy_check = 0
+                system_timer = 0
 
     
 def lights_on(t):
