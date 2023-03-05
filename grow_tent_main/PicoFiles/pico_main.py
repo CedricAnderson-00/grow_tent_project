@@ -8,61 +8,56 @@ from SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_thr
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global low_hum, low_temp_c, low_temp_f, system_timer, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, pump_one
+    global low_hum, low_temp_c, low_temp_f, system_timer, system_led, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, pump_one
     
-    while True:
-    
-        # flash led so user knows system is monitoring
-        system_led = Pin(25, Pin.OUT)
-        system_led.value(1)
-        while switch.value() == 1:
-            if toggle_five.value() == 1:  # manual water
-                pump_one.value(1)
-                sleep(10)
-                pump_one.value(0)  
-            uart = UART(0, 115200)
-            system_led.toggle()
-            water_plants()
-            light_controller()
-            x = get_temp_hum()
-            send_temp_c = x[0]
-            send_temp_f = x[1]
-            send_hum = x[2]
-            database()
+    while switch.value() == 1:
+        if toggle_five.value() == 1:  # manual water
+            pump_one.value(1)
+            sleep(10)
+            pump_one.value(0)  
+        uart = UART(0, 115200)
+        system_led.toggle()
+        water_plants()
+        light_controller()
+        x = get_temp_hum()
+        send_temp_c = x[0]
+        send_temp_f = x[1]
+        send_hum = x[2]
+        database()
+        
+        # logic to get low and high values
+        if send_hum < low_hum:
+            low_hum = send_hum
             
-            # logic to get low and high values
-            if send_hum < low_hum:
-                low_hum = send_hum
-                
-            if send_temp_c < low_temp_c:
-                low_temp_c = send_temp_c
-                
-            if send_temp_f < low_temp_f:
-                low_temp_f = send_temp_f
-                
-            # get soil readings    
-            soil1 = soil_sensor_one()
-            soil2 = soil_sensor_two()
-            soil3 = soil_sensor_three()
+        if send_temp_c < low_temp_c:
+            low_temp_c = send_temp_c
+            
+        if send_temp_f < low_temp_f:
+            low_temp_f = send_temp_f
+            
+        # get soil readings    
+        soil1 = soil_sensor_one()
+        soil2 = soil_sensor_two()
+        soil3 = soil_sensor_three()
 
-            # transfer values in tent state to master Pi
-            if uart.any() == 1:
-                plant = 1, send_temp_f, send_temp_c, send_hum, system_timer, soil1, pump_one_total
-                uart.write(str(plant).encode('utf-8'))
-                sleep(0.01)  # this depends on how much data is sent
-                pump_one_total = 0    
-                
-            elif uart.any() == 2:
-                plant = 2, send_temp_f, send_temp_c, send_hum, system_timer, soil2, pump_two_total
-                uart.write(str(plant).encode('utf-8'))
-                sleep(0.01)  # this depends on how much data is sent
-                pump_two_total = 0       
+        # transfer values in tent state to master Pi
+        if uart.any() == 1:
+            plant = 1, send_temp_f, send_temp_c, send_hum, system_timer, soil1, pump_one_total
+            uart.write(str(plant).encode('utf-8'))
+            sleep(0.01)  # this depends on how much data is sent
+            pump_one_total = 0    
+            
+        elif uart.any() == 2:
+            plant = 2, send_temp_f, send_temp_c, send_hum, system_timer, soil2, pump_two_total
+            uart.write(str(plant).encode('utf-8'))
+            sleep(0.01)  # this depends on how much data is sent
+            pump_two_total = 0       
 
-            elif uart.any() == 3:
-                plant = 3, send_temp_f, send_temp_c, send_hum, system_timer, soil3, pump_three_total
-                uart.write(str(plant).encode('utf-8'))
-                sleep(0.01)  # this depends on how much data is sent
-                pump_three_total = 0
+        elif uart.any() == 3:
+            plant = 3, send_temp_f, send_temp_c, send_hum, system_timer, soil3, pump_three_total
+            uart.write(str(plant).encode('utf-8'))
+            sleep(0.01)  # this depends on how much data is sent
+            pump_three_total = 0
                 
                 
 def system_controller(t):
