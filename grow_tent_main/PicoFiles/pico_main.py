@@ -8,7 +8,7 @@ from SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_thr
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global low_hum, low_temp_c, low_temp_f, system_timer, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, pump_one, file
+    global low_hum, low_temp_c, low_temp_f, system_timer, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, pump_one
     
     while True:
     
@@ -16,7 +16,6 @@ def main_body(switch):
         system_led = Pin(25, Pin.OUT)
         system_led.value(1)
         while switch.value() == 1:
-            database()
             if toggle_five.value() == 1:  # manual water
                 pump_one.value(1)
                 sleep(10)
@@ -29,6 +28,7 @@ def main_body(switch):
             send_temp_c = x[0]
             send_temp_f = x[1]
             send_hum = x[2]
+            database()
             
             # logic to get low and high values
             if send_hum < low_hum:
@@ -63,8 +63,6 @@ def main_body(switch):
                 uart.write(str(plant).encode('utf-8'))
                 sleep(0.01)  # this depends on how much data is sent
                 pump_three_total = 0
-                   
-        return
                 
                 
 def system_controller(t):
@@ -120,31 +118,7 @@ def light_controller():
                 tent_light_control.value(0)
                 light_redundancy_check = 0
                 system_timer = 0
-
-    
-def lights_on(t):
-    """lights_on() turns tent light on and then waits a user-defined amount of time. 
-       Adds time off to the global variable. After Timer is complete, calls lights_off()
-       """
-    
-    global light_time_off, tent_light_control
-
-    tent_light_control.value(1)
-    sleep(0.01)
-    light_time_off += 12
-    
-
-def lights_off(t):
-    """lights_off() turns tent light off and then waits a user-defined amount of time. 
-       Adds time on to the global variable. After Timer is complete, calls lights_on()
-       """
        
-    global light_time_on, tent_light_control
-    
-    tent_light_control.value(0)
-    sleep(0.01)
-    
-    
     
 def water_plants():
     """Function that uses system time to water plants at 12 hour intervals"""
@@ -155,20 +129,68 @@ def water_plants():
     # global dispensed values
     global pump_one_total, pump_two_total, pump_three_total
 
-    if system_timer == 12:
-        if water_redundancy_check == 0:
-            pump_one.value(1)
-            sleep(55)
-            pump_one.value(0)
-            pump_one_total += 500
-            pump_two_total += 500
-            pump_three_total += 500
-            water_redundancy_check += 1
-    if system_timer == 24:
-        if water_redundancy_check == 1:
-            water_redundancy_check = 0
+    if toggle_one.value() == 1:
+        if system_timer == 12:
+            if water_redundancy_check == 0:
+                pump_one.value(1)
+                sleep(3)
+                pump_one.value(0)
+                pump_one_total += 500
+                pump_two_total += 500
+                pump_three_total += 500
+                water_redundancy_check += 1
+        if system_timer == 24:
+            if water_redundancy_check == 1:
+                pump_one.value(1)
+                sleep(2)
+                pump_one.value(0)
+                water_redundancy_check = 0
+    if toggle_two.value() == 1:
+        if system_timer == 12:
+            if water_redundancy_check == 0:
+                pump_one.value(1)
+                sleep(55)
+                pump_one.value(0)
+                pump_one_total += 500
+                pump_two_total += 500
+                pump_three_total += 500
+                water_redundancy_check += 1
+        if system_timer == 24:
+            if water_redundancy_check == 1:
+                pump_one.value(1)
+                sleep(25)
+                pump_one.value(0)
+                pump_one_total += 500
+                pump_two_total += 500
+                pump_three_total += 500
+                water_redundancy_check = 0
+    if toggle_three.value() == 1:
+        if system_timer == 12:
+            if water_redundancy_check == 0:
+                pump_one.value(1)
+                sleep(55)
+                pump_one.value(0)
+                pump_one_total += 500
+                pump_two_total += 500
+                pump_three_total += 500
+                water_redundancy_check += 1
+        if system_timer == 24:
+            if water_redundancy_check == 1:
+                pump_one.value(1)
+                sleep(55)
+                pump_one.value(0)
+                pump_one_total += 500
+                pump_two_total += 500
+                pump_three_total += 500
+                water_redundancy_check = 0
+    if toggle_four.value() == 1:
+        if system_timer == 12:
+            if water_redundancy_check == 0:
+                water_redundancy_check += 1
+        if system_timer == 24:
+            if water_redundancy_check == 1:
+                water_redundancy_check = 0
     
-
 
 def database():
     """Function that creates a .txt file to store system time.
@@ -191,6 +213,7 @@ def database():
         file.write(str(light_redundancy_check) + ", ")
         file.write(str(light_value_database))
         file.close()
+
 
 # toggle switch GPIO
 toggle_one = Pin(16, Pin.IN, Pin.PULL_DOWN)
@@ -240,6 +263,9 @@ light_redundancy_check = int(database_values[1])
 initial_light_reading = int(database_values[2])
 tent_light_control.value(initial_light_reading)
 
+# close .txt file
+database()
+
 # notify user that the program is running
 print("*****Program running*****")
 
@@ -258,5 +284,3 @@ while True:
             main_body(toggle_three)
         while toggle_four.value() == 1:
             main_body(toggle_four)
-
-
