@@ -64,16 +64,17 @@ while True:
         temp_f = temp * (9 / 5) + 32
 
         # logic to test current state of system
-        if temp_f > 82:
+        if temp_f > 85:
             heat_control.value(0)
             sleep(0.01)
-            exhaust.value(0)
-            if temp_f > 86.5:
+            if temp_f > 88:
                 exhaust.value(1)
-                sleep(15)
-        elif temp_f < 75:  # the gap in temp is to reduce wear on relay
-            heat_control.value(1)
+        elif temp_f < 84:  # the gap in temp is to reduce wear on relay
+            exhaust.value(0)
             sleep(0.01)
+            if temp_f < 78:
+                heat_control.value(1)
+                sleep(0.01)
 
         # this logic will check humidity levels and operate relay
         if hum > 55:
@@ -102,7 +103,7 @@ while True:
         if temp_f < low_temp_f:
             low_temp_f = temp_f
 
-        sleep(0.2)  
+        sleep(0.1)  
 
     except (OSError, TypeError):
         print("no reading from sensor")
