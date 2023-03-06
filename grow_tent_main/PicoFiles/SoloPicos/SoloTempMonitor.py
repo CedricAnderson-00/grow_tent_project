@@ -28,6 +28,23 @@ def light_counter(random):
     
     light_time_on +=1
 
+
+def database():
+    
+    global file, system_timer, counter
+
+    # avoids reading the file after system startup
+    if counter == 0:
+        file = open("database.txt","r")
+        system_timer = file.read()
+        file.close()
+        counter += 1
+    if counter >= 1:
+        file = open("database.txt","w")
+        file.write(str(system_timer))
+        file.close()
+        
+    
 # assign GPIO pin locations
 # emergency_cooling = Pin(18, Pin.OUT)
 dehumidifier = Pin(19, Pin.OUT)
@@ -43,6 +60,7 @@ low_temp_f = 212
 low_hum = 100
 light_time_on = 0
 light_time_off = 0
+counter = 0
 
 # ensure all relays are off at the start of program
 dehumidifier.value(0)
@@ -102,13 +120,15 @@ while True:
 
         if temp_f < low_temp_f:
             low_temp_f = temp_f
+            
+        database()
 
         sleep(0.1)  
 
     except (OSError, TypeError):
         print("no reading from sensor")
-        heat_control.value(0)
-        hum_control.value(0)
+        #heat_control.value(0)
+        #hum_control.value(0)
         continue
 
 
