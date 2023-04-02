@@ -8,7 +8,7 @@ from SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_thr
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global low_hum, low_temp_c, low_temp_f, system_timer, system_led, pump_one_total, pump_two_total, pump_three_total, send_temp_c, send_hum, send_temp_f, pump_one
+    global low_hum, low_temp_c, low_temp_f, system_timer, system_led, pump_one_total, pump_two_total, pump_three_total, temp_c, temp_f, hum, pump_one
     
     while switch.value() == 1:
         if toggle_five.value() == 1:  # manual water
@@ -19,42 +19,24 @@ def main_body(switch):
         system_led.toggle()
         water_plants()
         light_controller()
-        x = get_temp_hum()
-        send_temp_c = x[0]
-        send_temp_f = x[1]
-        send_hum = x[2]
+        tent_environment()
         database()
-        
-        # logic to get low and high values
-        if send_hum < low_hum:
-            low_hum = send_hum
-            
-        if send_temp_c < low_temp_c:
-            low_temp_c = send_temp_c
-            
-        if send_temp_f < low_temp_f:
-            low_temp_f = send_temp_f
-            
-        # get soil readings    
-        soil1 = soil_sensor_one()
-        soil2 = soil_sensor_two()
-        soil3 = soil_sensor_three()
 
         # transfer values in tent state to master Pi
         if uart.any() == 1:
-            plant = 1, send_temp_f, send_temp_c, send_hum, system_timer, soil1, pump_one_total
+            plant = 1, temp_f, temp_c, hum, system_timer, pump_one_total
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent
             pump_one_total = 0    
             
         elif uart.any() == 2:
-            plant = 2, send_temp_f, send_temp_c, send_hum, system_timer, soil2, pump_two_total
+            plant = 2, temp_f, temp_c, hum, system_timer, pump_two_total
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent
             pump_two_total = 0       
 
         elif uart.any() == 3:
-            plant = 3, send_temp_f, send_temp_c, send_hum, system_timer, soil3, pump_three_total
+            plant = 3, temp_f, temp_c, hum, system_timer, pump_three_total
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent
             pump_three_total = 0
@@ -210,6 +192,47 @@ def database():
         file.close()
 
 
+def tent_environment():
+    """Function that controls the temperature and humidity environment of the grow tent."""
+    
+    global temp_c, temp_f, hum
+    
+    x = get_temp_hum()
+    temp_c = x[0]
+    hum = x[2]
+    temp_f = x[1]
+
+    # logic to test current state of system
+    if temp_f > 85:
+        heat_control.value(0)
+        sleep(0.01)
+        if temp_f > 88:
+            exhaust.value(1)
+    elif temp_f < 84:  # the gap in temp_c is to reduce wear on relay
+        exhaust.value(0)
+        sleep(0.01)
+        if temp_f < 78:
+            heat_control.value(1)
+            sleep(0.01)
+
+    # this logic will check humidity levels and operate relay
+    if hum > 55:
+        hum_control.value(0)
+        sleep(0.01)
+        dehumidifier.value(0)
+        sleep(0.01)
+        if hum >= 63:
+            dehumidifier.value(1)
+            sleep(0.01)
+            hum_control.value(0)
+            sleep(0.01)
+    elif hum < 50:
+        hum_control.value(1)
+        sleep(0.01)
+        dehumidifier.value(0)
+        sleep(0.01)
+
+
 # toggle switch GPIO
 toggle_one = Pin(16, Pin.IN, Pin.PULL_DOWN)
 toggle_two = Pin(17, Pin.IN, Pin.PULL_DOWN)
@@ -237,16 +260,27 @@ fert_one = Pin(20, Pin.OUT)
 fert_two = Pin(21, Pin.OUT)
 fert_three = Pin(22, Pin.OUT)
 stir_plate = Pin(13, Pin.OUT)
+dehumidifier = Pin(19, Pin.OUT)
+heat_control = Pin(16, Pin.OUT)
+exhaust = Pin(18, Pin.OUT)
+hum_control = Pin(17, Pin.OUT)
+led_onboard = Pin(25, Pin.OUT)
 
 # variables to start water and light cycles
 timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=system_controller)
 
 # low values
 # set to maximum values for initial running of program to establish low values
-low_temp_f = 212
-low_temp_c = 100
-low_hum = 100
+temp_f = 212
+temp_c = 100
+hum = 100
 grow_cycle = 0
+
+# ensure all relays are off at the start of program
+dehumidifier.value(0)
+hum_control.value(0)
+heat_control.value(0)
+exhaust.value(0)
 
 # establish system time
 database()
