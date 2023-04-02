@@ -8,7 +8,7 @@ from SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_thr
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global low_hum, low_temp_c, low_temp_f, system_timer, system_led, pump_one_total, pump_two_total, pump_three_total, temp_c, temp_f, hum, pump_one
+    global system_timer, system_led, pump_one_total, pump_two_total, pump_three_total, temp_c, temp_f, hum, pump_one
     
     while switch.value() == 1:
         if toggle_five.value() == 1:  # manual water
@@ -251,20 +251,22 @@ water_redundancy_check = 0
 light_redundancy_check = 0
 database_values = []
 
-# GPIO assignments
-tent_light_control = Pin(12, Pin.OUT)
-pump_one = Pin(15, Pin.OUT)  # water
-pump_two = Pin(14, Pin.OUT)  # fertilizer
-pump_three = Pin(13, Pin.OUT)
-fert_one = Pin(20, Pin.OUT)
-fert_two = Pin(21, Pin.OUT)
-fert_three = Pin(22, Pin.OUT)
-stir_plate = Pin(13, Pin.OUT)
-dehumidifier = Pin(19, Pin.OUT)
-heat_control = Pin(16, Pin.OUT)
-exhaust = Pin(18, Pin.OUT)
-hum_control = Pin(17, Pin.OUT)
-led_onboard = Pin(25, Pin.OUT)
+# GPIO relay assignments
+relay_1 = Pin(10, Pin.OUT)
+relay_2 = Pin(11, Pin.OUT)
+relay_3 = Pin(12, Pin.OUT)
+relay_4 = Pin(13, Pin.OUT)
+relay_5 = Pin(14, Pin.OUT)
+relay_6 = Pin(15, Pin.OUT)
+relay_7 = Pin(16, Pin.OUT)
+relay_8 = Pin(17, Pin.OUT)
+Relay_9 = Pin(18, Pin.OUT)
+relay_10 = Pin(19, Pin.OUT)
+relay_11 = Pin(20, Pin.OUT)
+relay_12 = Pin(21, Pin.OUT)
+relay_13 = Pin(22, Pin.OUT)
+relay_14 = Pin(23, Pin.OUT)
+relay_15 = Pin(24, Pin.OUT)
 
 # variables to start water and light cycles
 timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=system_controller)
@@ -277,10 +279,21 @@ hum = 100
 grow_cycle = 0
 
 # ensure all relays are off at the start of program
-dehumidifier.value(0)
-hum_control.value(0)
-heat_control.value(0)
-exhaust.value(0)
+relay_1.value(0)
+relay_2.value(0)
+relay_3.value(0)
+relay_4.value(0)
+relay_5.value(0)
+relay_6.value(0)
+relay_7.value(0)
+relay_8.value(0)
+Relay_9.value(0)
+relay_10.value(0)
+relay_11.value(0)
+relay_12.value(0)
+relay_13.value(0)
+relay_14.value(0)
+relay_15.value(0)
 
 # establish system time
 database()
