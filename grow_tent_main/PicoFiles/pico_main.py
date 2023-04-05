@@ -234,11 +234,10 @@ def tent_environment():
 
 
 # toggle switch GPIO
-toggle_one = Pin(16, Pin.IN, Pin.PULL_DOWN)
-toggle_two = Pin(17, Pin.IN, Pin.PULL_DOWN)
-toggle_three = Pin(18, Pin.IN, Pin.PULL_DOWN)
-toggle_four = Pin(19, Pin.IN, Pin.PULL_DOWN)
-toggle_five = Pin(6, Pin.IN, Pin.PULL_DOWN)
+toggle_one = Pin(2, Pin.IN, Pin.PULL_DOWN)
+toggle_two = Pin(3, Pin.IN, Pin.PULL_DOWN)
+toggle_three = Pin(4, Pin.IN, Pin.PULL_DOWN)
+toggle_four = Pin(5, Pin.IN, Pin.PULL_DOWN)
 
 # timer values 
 system_timer = 0
