@@ -8,13 +8,13 @@ from SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_thr
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global system_timer, system_led, pump_one_total, pump_two_total, pump_three_total, temp_c, temp_f, hum, pump_one
+    global system_timer, system_led, pump_one_total, pump_two_total, pump_three_total, temp_c, temp_f, hum, relay_4
     
     while switch.value() == 1:
         if toggle_five.value() == 1:  # manual water
-            pump_one.value(1)
+            relay_4.value(1)
             sleep(10)
-            pump_one.value(0)  
+            relay_4.value(0)  
         uart = UART(0, 115200)
         system_led.toggle()
         water_plants()
@@ -53,46 +53,46 @@ def system_controller(t):
 def light_controller():
     """Function that turns on/off tent lights based on system time"""
     
-    global system_timer, tent_light_control, light_redundancy_check
+    global system_timer, relay_2, light_redundancy_check
     
     if toggle_one.value() == 1:
         if system_timer == 12:
             if light_redundancy_check == 0:
-                tent_light_control.value(1)
+                relay_2.value(1)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
-                tent_light_control.value(1)
+                relay_2.value(1)
                 light_redundancy_check = 0
                 system_timer = 0
     if toggle_two.value() == 1:
         if system_timer == 12:
             if light_redundancy_check == 0:
-                tent_light_control.value(1)
+                relay_2.value(1)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
-                tent_light_control.value(1)
+                relay_2.value(1)
                 light_redundancy_check = 0
                 system_timer = 0
     if toggle_three.value() == 1:
         if system_timer == 12:
             if light_redundancy_check == 0:
-                tent_light_control.value(0)
+                relay_2.value(0)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
-                tent_light_control.value(1)
+                relay_2.value(1)
                 light_redundancy_check = 0
                 system_timer = 0
     if toggle_four.value() == 1:
         if system_timer == 12:
             if light_redundancy_check == 0:
-                tent_light_control.value(0)
+                relay_2.value(0)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
-                tent_light_control.value(0)
+                relay_2.value(0)
                 light_redundancy_check = 0
                 system_timer = 0
        
@@ -101,7 +101,7 @@ def water_plants():
     """Function that uses system time to water plants at 12 hour intervals"""
         
     # global GPIO control   
-    global pump_one, system_timer, water_redundancy_check
+    global relay_4, system_timer, water_redundancy_check
     
     # global dispensed values
     global pump_one_total, pump_two_total, pump_three_total
@@ -109,34 +109,34 @@ def water_plants():
     if toggle_one.value() == 1:
         if system_timer == 12:
             if water_redundancy_check == 0:
-                pump_one.value(1)
+                relay_4.value(1)
                 sleep(3)
-                pump_one.value(0)
+                relay_4.value(0)
                 pump_one_total += 500
                 pump_two_total += 500
                 pump_three_total += 500
                 water_redundancy_check += 1
         if system_timer == 24:
             if water_redundancy_check == 1:
-                pump_one.value(1)
+                relay_4.value(1)
                 sleep(2)
-                pump_one.value(0)
+                relay_4.value(0)
                 water_redundancy_check = 0
     if toggle_two.value() == 1:
         if system_timer == 12:
             if water_redundancy_check == 0:
-                pump_one.value(1)
+                relay_4.value(1)
                 sleep(55)
-                pump_one.value(0)
+                relay_4.value(0)
                 pump_one_total += 500
                 pump_two_total += 500
                 pump_three_total += 500
                 water_redundancy_check += 1
         if system_timer == 24:
             if water_redundancy_check == 1:
-                pump_one.value(1)
+                relay_4.value(1)
                 sleep(25)
-                pump_one.value(0)
+                relay_4.value(0)
                 pump_one_total += 500
                 pump_two_total += 500
                 pump_three_total += 500
@@ -144,18 +144,18 @@ def water_plants():
     if toggle_three.value() == 1:
         if system_timer == 12:
             if water_redundancy_check == 0:
-                pump_one.value(1)
+                relay_4.value(1)
                 sleep(55)
-                pump_one.value(0)
+                relay_4.value(0)
                 pump_one_total += 500
                 pump_two_total += 500
                 pump_three_total += 500
                 water_redundancy_check += 1
         if system_timer == 24:
             if water_redundancy_check == 1:
-                pump_one.value(1)
+                relay_4.value(1)
                 sleep(55)
-                pump_one.value(0)
+                relay_4.value(0)
                 pump_one_total += 500
                 pump_two_total += 500
                 pump_three_total += 500
@@ -174,7 +174,7 @@ def database():
        Reads data from file to continue system_timer
        """
     
-    global system_timer, counter, light_redundancy_check, tent_light_control, database_values, light_value_database
+    global system_timer, counter, light_redundancy_check, relay_2, database_values, light_value_database
 
     # avoids reading the file after system startup
     if counter == 0:
@@ -185,7 +185,7 @@ def database():
         counter += 1
     if counter >= 1:
         file = open("database.txt","w")
-        light_value_database = tent_light_control.value()
+        light_value_database = relay_2.value()
         file.write(str(system_timer) + ", ")
         file.write(str(light_redundancy_check) + ", ")
         file.write(str(light_value_database))
@@ -204,40 +204,41 @@ def tent_environment():
 
     # logic to test current state of system
     if temp_f > 85:
-        heat_control.value(0)
+        relay_8.value(0)
         sleep(0.01)
         if temp_f > 88:
-            exhaust.value(1)
+            relay_7.value(1)
     elif temp_f < 84:  # the gap in temp_c is to reduce wear on relay
-        exhaust.value(0)
+        relay_7.value(0)
         sleep(0.01)
         if temp_f < 78:
-            heat_control.value(1)
+            relay_8.value(1)
             sleep(0.01)
 
     # this logic will check humidity levels and operate relay
     if hum > 55:
-        hum_control.value(0)
+        relay_6.value(0)
         sleep(0.01)
-        dehumidifier.value(0)
+        relay_11.value(0)
         sleep(0.01)
         if hum >= 63:
-            dehumidifier.value(1)
+            relay_11.value(1)
             sleep(0.01)
-            hum_control.value(0)
+            relay_6.value(0)
             sleep(0.01)
     elif hum < 50:
-        hum_control.value(1)
+        relay_6.value(1)
         sleep(0.01)
-        dehumidifier.value(0)
+        relay_11.value(0)
         sleep(0.01)
 
 
 # toggle switch GPIO
-toggle_one = Pin(2, Pin.IN, Pin.PULL_DOWN)
-toggle_two = Pin(3, Pin.IN, Pin.PULL_DOWN)
-toggle_three = Pin(4, Pin.IN, Pin.PULL_DOWN)
-toggle_four = Pin(5, Pin.IN, Pin.PULL_DOWN)
+toggle_one = Pin(2, Pin.IN, Pin.PULL_DOWN)  # Grow phase 1
+toggle_two = Pin(3, Pin.IN, Pin.PULL_DOWN)  # Grow phase 2
+toggle_three = Pin(4, Pin.IN, Pin.PULL_DOWN)  # Grow phase 3
+toggle_four = Pin(5, Pin.IN, Pin.PULL_DOWN)  # Grow phase 4
+toggle_five = Pin(6, Pin.IN, Pin.PULL_DOWN)  # Manual watering
 
 # timer values 
 system_timer = 0
@@ -252,19 +253,19 @@ database_values = []
 
 # GPIO relay assignments
 relay_1 = Pin(17, Pin.OUT)
-relay_2 = Pin(16, Pin.OUT)
-relay_3 = Pin(15, Pin.OUT)
-relay_4 = Pin(14, Pin.OUT)
+relay_2 = Pin(16, Pin.OUT)  # Main light
+relay_3 = Pin(15, Pin.OUT)  # Lateral lights
+relay_4 = Pin(14, Pin.OUT)  # Water pump
 relay_5 = Pin(13, Pin.OUT)
-relay_6 = Pin(12, Pin.OUT)
-relay_7 = Pin(11, Pin.OUT)
-relay_8 = Pin(10, Pin.OUT)
-Relay_9 = Pin(18, Pin.OUT)
+relay_6 = Pin(12, Pin.OUT)  # Humidifier
+relay_7 = Pin(11, Pin.OUT)  # Exhaust fan
+relay_8 = Pin(10, Pin.OUT)  # Heat lamps
+relay_9 = Pin(18, Pin.OUT)  # Mini exhaust
 relay_10 = Pin(27, Pin.OUT)
-relay_11 = Pin(26, Pin.OUT)
-relay_12 = Pin(22, Pin.OUT)
-relay_13 = Pin(21, Pin.OUT)
-relay_14 = Pin(20, Pin.OUT)
+relay_11 = Pin(26, Pin.OUT)  # Dehumidifier #1
+relay_12 = Pin(22, Pin.OUT)  # Dehumidifier #2
+relay_13 = Pin(21, Pin.OUT)  # Dehumidifier #3
+relay_14 = Pin(20, Pin.OUT)  # Dehumidifier #4
 relay_15 = Pin(19, Pin.OUT)
 
 # variables to start water and light cycles
@@ -279,14 +280,14 @@ grow_cycle = 0
 
 # ensure all relays are off at the start of program
 relay_1.value(0)
-relay_2.value(0)
-relay_3.value(0)
-relay_4.value(0)
+relay_2.value(0)  # Main light
+relay_3.value(0)  # Lateral lights
+relay_4.value(0)  # Water pump
 relay_5.value(0)
 relay_6.value(0)
 relay_7.value(0)
 relay_8.value(0)
-Relay_9.value(0)
+relay_9.value(0)
 relay_10.value(0)
 relay_11.value(0)
 relay_12.value(0)
@@ -302,7 +303,8 @@ system_timer = int(database_values[0])
 water_redundancy_check = int(database_values[1])
 light_redundancy_check = int(database_values[1])
 initial_light_reading = int(database_values[2])
-tent_light_control.value(initial_light_reading)
+relay_2.value(initial_light_reading)
+relay_3.value(initial_light_reading)
 
 # close .txt file
 database()
