@@ -1,14 +1,14 @@
 from time import sleep
 from machine import Timer, Pin, UART
 from TempHumiditySensor import get_temp_hum
-from SoilMoistureSensor import soil_sensor_one, soil_sensor_two, soil_sensor_three
+from LcdDisplay import lcd 
 
 
 # functions
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global system_timer, system_led, pump_one_total, pump_two_total, pump_three_total, temp_c, temp_f, hum, relay_4
+    global system_timer, system_led, dispensed_water_total, temp_c, temp_f, hum, relay_4
     
     while switch.value() == 1:
         if toggle_five.value() == 1:  # manual water
@@ -24,22 +24,20 @@ def main_body(switch):
 
         # transfer values in tent state to master Pi
         if uart.any() == 1:
-            plant = 1, temp_f, temp_c, hum, system_timer, pump_one_total
+            plant = 1, temp_f, temp_c, hum, system_timer, dispensed_water_total
             uart.write(str(plant).encode('utf-8'))
-            sleep(0.01)  # this depends on how much data is sent
-            pump_one_total = 0    
+            sleep(0.01)  # this depends on how much data is sent    
             
         elif uart.any() == 2:
-            plant = 2, temp_f, temp_c, hum, system_timer, pump_two_total
+            plant = 2, temp_f, temp_c, hum, system_timer, dispensed_water_total
             uart.write(str(plant).encode('utf-8'))
-            sleep(0.01)  # this depends on how much data is sent
-            pump_two_total = 0       
+            sleep(0.01)  # this depends on how much data is sent      
 
         elif uart.any() == 3:
-            plant = 3, temp_f, temp_c, hum, system_timer, pump_three_total
+            plant = 3, temp_f, temp_c, hum, system_timer, dispensed_water_total
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent
-            pump_three_total = 0
+            dispensed_water_total = 0
                 
                 
 def system_controller(t):
@@ -104,7 +102,7 @@ def water_plants():
     global relay_4, system_timer, water_redundancy_check
     
     # global dispensed values
-    global pump_one_total, pump_two_total, pump_three_total
+    global dispensed_water_total
 
     if toggle_one.value() == 1:
         if system_timer == 12:
@@ -112,9 +110,7 @@ def water_plants():
                 relay_4.value(1)
                 sleep(3)
                 relay_4.value(0)
-                pump_one_total += 500
-                pump_two_total += 500
-                pump_three_total += 500
+                dispensed_water_total += 30
                 water_redundancy_check += 1
         if system_timer == 24:
             if water_redundancy_check == 1:
@@ -128,18 +124,14 @@ def water_plants():
                 relay_4.value(1)
                 sleep(55)
                 relay_4.value(0)
-                pump_one_total += 500
-                pump_two_total += 500
-                pump_three_total += 500
+                dispensed_water_total += 500
                 water_redundancy_check += 1
         if system_timer == 24:
             if water_redundancy_check == 1:
                 relay_4.value(1)
                 sleep(25)
                 relay_4.value(0)
-                pump_one_total += 500
-                pump_two_total += 500
-                pump_three_total += 500
+                dispensed_water_total += 225
                 water_redundancy_check = 0
     if toggle_three.value() == 1:
         if system_timer == 12:
@@ -147,18 +139,14 @@ def water_plants():
                 relay_4.value(1)
                 sleep(55)
                 relay_4.value(0)
-                pump_one_total += 500
-                pump_two_total += 500
-                pump_three_total += 500
+                dispensed_water_total += 500
                 water_redundancy_check += 1
         if system_timer == 24:
             if water_redundancy_check == 1:
                 relay_4.value(1)
                 sleep(55)
                 relay_4.value(0)
-                pump_one_total += 500
-                pump_two_total += 500
-                pump_three_total += 500
+                dispensed_water_total += 500
                 water_redundancy_check = 0
     if toggle_four.value() == 1:
         if system_timer == 12:
@@ -263,6 +251,18 @@ def tent_environment():
         sleep(0.01)
 
 
+def display_lcd(t):
+    """Timed function that transmits data to LCDs"""
+
+    global hum, temp_f, temp_c, light_time_off, system_timer
+    
+    # hex addresses for lcd(s)
+    # SDA(8) SCL(9)
+    lcd_one = 0x23  # temperature f
+
+    lcd(lcd_one, str(temp_f), str(hum), str(temp_c), str(system_timer), 1)
+    
+
 # toggle switch GPIO
 toggle_one = Pin(2, Pin.IN, Pin.PULL_DOWN)  # Grow phase 1
 toggle_two = Pin(3, Pin.IN, Pin.PULL_DOWN)  # Grow phase 2
@@ -274,7 +274,7 @@ toggle_five = Pin(6, Pin.IN, Pin.PULL_DOWN)  # Manual watering
 system_timer = 0
 counter = 0
 light_time_off = 0
-pump_one_total = 0
+dispensed_water_total = 0
 pump_two_total = 0
 pump_three_total = 0
 water_redundancy_check = 0
@@ -302,7 +302,8 @@ relay_13 = Pin(21, Pin.OUT)  # Dehumidifier #3
 relay_14 = Pin(20, Pin.OUT)  # Dehumidifier #4
 relay_15 = Pin(19, Pin.OUT)
 
-# variables to start water and light cycles
+# system timers for display and hour counter
+display_timer = Timer(period=20_000, mode=Timer.PERIODIC, callback=display_lcd)  # one minute timer
 timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=system_controller)
 
 # low values
