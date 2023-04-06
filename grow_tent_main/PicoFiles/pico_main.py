@@ -280,9 +280,9 @@ grow_cycle = 0
 
 # ensure all relays are off at the start of program
 relay_1.value(0)
-relay_2.value(0)  # Main light
-relay_3.value(0)  # Lateral lights
-relay_4.value(0)  # Water pump
+relay_2.value(0)
+relay_3.value(0)  
+relay_4.value(0)  
 relay_5.value(0)
 relay_6.value(0)
 relay_7.value(0)
