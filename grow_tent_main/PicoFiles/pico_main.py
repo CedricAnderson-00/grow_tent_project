@@ -195,7 +195,29 @@ def database():
 def tent_environment():
     """Function that controls the temperature and humidity environment of the grow tent."""
     
-    global temp_c, temp_f, hum
+    global temp_c, temp_f, hum, toggle_one, toggle_two, toggle_three, toggle_four, temp_check_value, humidity_check_value, low_temp_check_value, low_humidity_check_value
+    
+    # check toggle switches to determine what maximum values are.
+    if toggle_one.value() == 1:
+        temp_check_value = 85
+        low_temp_check_value = 78
+        humidity_check_value = 65
+        low_humidity_check_value = 55
+    if toggle_two.value() == 1:
+        temp_check_value = 85
+        low_temp_check_value = 78
+        humidity_check_value = 55
+        low_humidity_check_value = 48
+    if toggle_three.value() == 1:
+        temp_check_value = 78
+        low_temp_check_value = 68
+        humidity_check_value = 50
+        low_humidity_check_value = 42
+    if toggle_four.value() == 1:
+        temp_check_value = 76
+        low_temp_check_value = 70
+        humidity_check_value = 42
+        low_humidity_check_value = 38
     
     x = get_temp_hum()
     temp_c = x[0]
@@ -203,33 +225,41 @@ def tent_environment():
     temp_f = x[1]
 
     # logic to test current state of system
-    if temp_f > 85:
+    if temp_f > temp_check_value:
         relay_8.value(0)
         sleep(0.01)
-        if temp_f > 88:
+        if temp_f > temp_check_value + 5:
             relay_7.value(1)
-    elif temp_f < 84:  # the gap in temp_c is to reduce wear on relay
+    elif temp_f < low_temp_check_value:  # the gap in temp_c is to reduce wear on relay
         relay_7.value(0)
         sleep(0.01)
-        if temp_f < 78:
+        if temp_f < low_temp_check_value - 3:
             relay_8.value(1)
             sleep(0.01)
 
     # this logic will check humidity levels and operate relay
-    if hum > 55:
+    if hum > humidity_check_value:
         relay_6.value(0)
         sleep(0.01)
-        relay_11.value(0)
-        sleep(0.01)
-        if hum >= 63:
+        if hum >= humidity_check_value + 2:
             relay_11.value(1)
             sleep(0.01)
-            relay_6.value(0)
+            relay_12.value(1)
             sleep(0.01)
-    elif hum < 50:
+            relay_13.value(1)
+            sleep(0.01)
+            relay_14.value(1)
+            sleep(0.01)
+    elif hum < low_humidity_check_value:
         relay_6.value(1)
         sleep(0.01)
         relay_11.value(0)
+        sleep(0.01)
+        relay_12.value(0)
+        sleep(0.01)
+        relay_13.value(0)
+        sleep(0.01)
+        relay_14.value(0)
         sleep(0.01)
 
 
@@ -249,6 +279,10 @@ pump_two_total = 0
 pump_three_total = 0
 water_redundancy_check = 0
 light_redundancy_check = 0
+temp_check_value = 0
+humidity_check_value = 0
+low_temp_check_value = 0
+low_humidity_check_value = 0
 database_values = []
 
 # GPIO relay assignments
@@ -276,7 +310,6 @@ timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=system_control
 temp_f = 212
 temp_c = 100
 hum = 100
-grow_cycle = 0
 
 # ensure all relays are off at the start of program
 relay_1.value(0)
