@@ -54,43 +54,51 @@ def light_controller():
     global system_timer, relay_2, light_redundancy_check
     
     if toggle_one.value() == 1:
-        if system_timer == 12:
+        if system_timer <= 23:
             if light_redundancy_check == 0:
                 relay_2.value(1)
+                relay_3.value(1)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
                 relay_2.value(1)
+                relay_3.value(1)
                 light_redundancy_check = 0
                 system_timer = 0
     if toggle_two.value() == 1:
-        if system_timer == 12:
+        if system_timer <= 23:
             if light_redundancy_check == 0:
                 relay_2.value(1)
+                relay_3.value(1)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
                 relay_2.value(1)
+                relay_3.value(1)
                 light_redundancy_check = 0
                 system_timer = 0
     if toggle_three.value() == 1:
         if system_timer == 12:
             if light_redundancy_check == 0:
                 relay_2.value(0)
+                relay_3.value(0)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
                 relay_2.value(1)
+                relay_3.value(1)
                 light_redundancy_check = 0
                 system_timer = 0
     if toggle_four.value() == 1:
-        if system_timer == 12:
+        if system_timer <= 23:
             if light_redundancy_check == 0:
                 relay_2.value(0)
+                relay_3.value(0)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
                 relay_2.value(0)
+                relay_3.value(0)
                 light_redundancy_check = 0
                 system_timer = 0
        
@@ -361,3 +369,4 @@ while True:
             main_body(toggle_three)
         while toggle_four.value() == 1:
             main_body(toggle_four)
+
