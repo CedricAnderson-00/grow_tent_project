@@ -8,7 +8,7 @@ from LcdDisplay import lcd
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global system_timer, system_led, dispensed_water_total, temp_c, temp_f, hum, relay_4
+    global system_timer, system_led, dispensed_water_total, temp_c, temp_f, hum, relay_4, light_time_off, light_time_on
     
     while switch.value() == 1:
         if toggle_five.value() == 1:  # manual water
@@ -24,17 +24,17 @@ def main_body(switch):
 
         # transfer values in tent state to master Pi
         if uart.any() == 1:
-            plant = 1, temp_f, temp_c, hum, system_timer, dispensed_water_total
+            plant = 1, temp_f, temp_c, hum, system_timer, dispensed_water_total, light_time_on, light_time_off
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent    
             
         elif uart.any() == 2:
-            plant = 2, temp_f, temp_c, hum, system_timer, dispensed_water_total
+            plant = 2, temp_f, temp_c, hum, system_timer, dispensed_water_total, light_time_on, light_time_off
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent      
 
         elif uart.any() == 3:
-            plant = 3, temp_f, temp_c, hum, system_timer, dispensed_water_total
+            plant = 3, temp_f, temp_c, hum, system_timer, dispensed_water_total, light_time_on, light_time_off
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent
             dispensed_water_total = 0
@@ -51,7 +51,7 @@ def system_controller(t):
 def light_controller():
     """Function that turns on/off tent lights based on system time"""
     
-    global system_timer, relay_2, light_redundancy_check
+    global system_timer, relay_2, light_redundancy_check, light_time_off, light_time_on
     
     if toggle_one.value() == 1:
         if system_timer <= 23:
@@ -63,6 +63,7 @@ def light_controller():
             if light_redundancy_check == 1:
                 relay_2.value(1)
                 relay_3.value(1)
+                light_time_on += 24
                 light_redundancy_check = 0
                 system_timer = 0
     if toggle_two.value() == 1:
@@ -75,6 +76,7 @@ def light_controller():
             if light_redundancy_check == 1:
                 relay_2.value(1)
                 relay_3.value(1)
+                light_time_on += 24
                 light_redundancy_check = 0
                 system_timer = 0
     if toggle_three.value() == 1:
@@ -82,11 +84,13 @@ def light_controller():
             if light_redundancy_check == 0:
                 relay_2.value(0)
                 relay_3.value(0)
+                light_time_on += 12
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
                 relay_2.value(1)
                 relay_3.value(1)
+                light_time_off += 12
                 light_redundancy_check = 0
                 system_timer = 0
     if toggle_four.value() == 1:
@@ -99,6 +103,7 @@ def light_controller():
             if light_redundancy_check == 1:
                 relay_2.value(0)
                 relay_3.value(0)
+                light_time_off += 24
                 light_redundancy_check = 0
                 system_timer = 0
        
@@ -170,7 +175,7 @@ def database():
        Reads data from file to continue system_timer
        """
     
-    global system_timer, counter, light_redundancy_check, relay_2, database_values, light_value_database
+    global system_timer, counter, light_redundancy_check, relay_2, database_values, light_value_database, light_time_off, light_time_on
 
     # avoids reading the file after system startup
     if counter == 0:
@@ -185,6 +190,8 @@ def database():
         file.write(str(system_timer) + ", ")
         file.write(str(light_redundancy_check) + ", ")
         file.write(str(light_value_database))
+        file.write(str(light_time_on))
+        file.write(str(light_time_off))
         file.close()
 
 
@@ -291,6 +298,8 @@ temp_check_value = 0
 humidity_check_value = 0
 low_temp_check_value = 0
 low_humidity_check_value = 0
+light_time_on = 0
+light_time_off = 0
 database_values = []
 
 # GPIO relay assignments
@@ -345,6 +354,8 @@ system_timer = int(database_values[0])
 water_redundancy_check = int(database_values[1])
 light_redundancy_check = int(database_values[1])
 initial_light_reading = int(database_values[2])
+light_time_on = int(database_values[3])
+light_time_off = int(database_values[4])
 relay_2.value(initial_light_reading)
 relay_3.value(initial_light_reading)
 
