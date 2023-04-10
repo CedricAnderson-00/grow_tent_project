@@ -33,11 +33,13 @@ while True:
         plant1 = receive_from_Pico("1")
         plant2 = receive_from_Pico("1.")
         plant3 = receive_from_Pico("1..")
+        plant4 = receive_from_Pico("1...")
         
         # send values to database
         database(plant1)
         database(plant2)
         database(plant3)
+        database(plant4)
         
         sleep(3_600)  # sleep for one hour
     except IndexError:
