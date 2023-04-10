@@ -37,6 +37,11 @@ def main_body(switch):
             plant = 3, temp_f, temp_c, humidity, system_timer, dispensed_water_total, light_time_on, light_time_off
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent
+            
+        elif uart.any() == 4:
+            plant = 4, temp_f, temp_c, humidity, system_timer, dispensed_water_total, light_time_on, light_time_off
+            uart.write(str(plant).encode('utf-8'))
+            sleep(0.01)  # this depends on how much data is sent
             dispensed_water_total = 0
                 
                 
