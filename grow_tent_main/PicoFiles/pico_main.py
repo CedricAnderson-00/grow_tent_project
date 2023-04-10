@@ -1,6 +1,6 @@
 from time import sleep
 from machine import Timer, Pin, UART
-from TempHumiditySensor import get_temp_hum
+from TemphumidityiditySensor import get_temp_humidity
 from LcdDisplay import lcd 
 
 
@@ -8,7 +8,7 @@ from LcdDisplay import lcd
 def main_body(switch):
     """Function that sends and receives values from sensors. Takes one arguement that is used to monitor state of toggle switches"""
     
-    global system_timer, system_led, dispensed_water_total, temp_c, temp_f, hum, relay_4, light_time_off, light_time_on
+    global system_timer, system_led, dispensed_water_total, temp_c, temp_f, humidity, relay_4, light_time_off, light_time_on
     
     while switch.value() == 1:
         if toggle_five.value() == 1:  # manual water
@@ -24,17 +24,17 @@ def main_body(switch):
 
         # transfer values in tent state to master Pi
         if uart.any() == 1:
-            plant = 1, temp_f, temp_c, hum, system_timer, dispensed_water_total, light_time_on, light_time_off
+            plant = 1, temp_f, temp_c, humidity, dispensed_water_total, light_time_on, light_time_off, system_timer
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent    
             
         elif uart.any() == 2:
-            plant = 2, temp_f, temp_c, hum, system_timer, dispensed_water_total, light_time_on, light_time_off
+            plant = 2, temp_f, temp_c, humidity, system_timer, dispensed_water_total, light_time_on, light_time_off
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent      
 
         elif uart.any() == 3:
-            plant = 3, temp_f, temp_c, hum, system_timer, dispensed_water_total, light_time_on, light_time_off
+            plant = 3, temp_f, temp_c, humidity, system_timer, dispensed_water_total, light_time_on, light_time_off
             uart.write(str(plant).encode('utf-8'))
             sleep(0.01)  # this depends on how much data is sent
             dispensed_water_total = 0
@@ -196,35 +196,35 @@ def database():
 
 
 def tent_environment():
-    """Function that controls the temperature and humidity environment of the grow tent."""
+    """Function that controls the temperature and humidityidity environment of the grow tent."""
     
-    global temp_c, temp_f, hum, toggle_one, toggle_two, toggle_three, toggle_four, temp_check_value, humidity_check_value, low_temp_check_value, low_humidity_check_value
+    global temp_c, temp_f, humidity, toggle_one, toggle_two, toggle_three, toggle_four, temp_check_value, humidityidity_check_value, low_temp_check_value, low_humidityidity_check_value
     
     # check toggle switches to determine what maximum values are.
     if toggle_one.value() == 1:
         temp_check_value = 85
         low_temp_check_value = 78
-        humidity_check_value = 65
-        low_humidity_check_value = 55
+        humidityidity_check_value = 65
+        low_humidityidity_check_value = 55
     if toggle_two.value() == 1:
         temp_check_value = 85
         low_temp_check_value = 78
-        humidity_check_value = 55
-        low_humidity_check_value = 48
+        humidityidity_check_value = 55
+        low_humidityidity_check_value = 48
     if toggle_three.value() == 1:
         temp_check_value = 78
         low_temp_check_value = 68
-        humidity_check_value = 50
-        low_humidity_check_value = 42
+        humidityidity_check_value = 50
+        low_humidityidity_check_value = 42
     if toggle_four.value() == 1:
         temp_check_value = 76
         low_temp_check_value = 70
-        humidity_check_value = 42
-        low_humidity_check_value = 38
+        humidityidity_check_value = 42
+        low_humidityidity_check_value = 38
     
-    x = get_temp_hum()
+    x = get_temp_humidity()
     temp_c = x[0]
-    hum = x[2]
+    humidity = x[2]
     temp_f = x[1]
 
     # logic to test current state of system
@@ -240,11 +240,11 @@ def tent_environment():
             relay_8.value(1)
             sleep(0.01)
 
-    # this logic will check humidity levels and operate relay
-    if hum > humidity_check_value:
+    # this logic will check humidityidity levels and operate relay
+    if humidity > humidityidity_check_value:
         relay_6.value(0)
         sleep(0.01)
-        if hum >= humidity_check_value + 2:
+        if humidity >= humidityidity_check_value + 2:
             relay_11.value(1)
             sleep(0.01)
             relay_12.value(1)
@@ -253,7 +253,7 @@ def tent_environment():
             sleep(0.01)
             relay_14.value(1)
             sleep(0.01)
-    elif hum < low_humidity_check_value:
+    elif humidity < low_humidityidity_check_value:
         relay_6.value(1)
         sleep(0.01)
         relay_11.value(0)
@@ -269,13 +269,13 @@ def tent_environment():
 def display_lcd(t):
     """Timed function that transmits data to LCDs"""
 
-    global hum, temp_f, temp_c, light_time_off, system_timer
+    global humidity, temp_f, temp_c, light_time_off, system_timer
     
     # hex addresses for lcd(s)
     # SDA(8) SCL(9)
     lcd_one = 0x23  # temperature f
 
-    lcd(lcd_one, str(temp_f), str(hum), str(temp_c), str(system_timer), 1)
+    lcd(lcd_one, str(temp_f), str(humidity), str(temp_c), str(system_timer), 1)
     
 
 # toggle switch GPIO
@@ -295,9 +295,9 @@ pump_three_total = 0
 water_redundancy_check = 0
 light_redundancy_check = 0
 temp_check_value = 0
-humidity_check_value = 0
+humidityidity_check_value = 0
 low_temp_check_value = 0
-low_humidity_check_value = 0
+low_humidityidity_check_value = 0
 light_time_on = 0
 light_time_off = 0
 database_values = []
@@ -308,15 +308,15 @@ relay_2 = Pin(16, Pin.OUT)  # Main light
 relay_3 = Pin(15, Pin.OUT)  # Lateral lights
 relay_4 = Pin(14, Pin.OUT)  # Water pump
 relay_5 = Pin(13, Pin.OUT)
-relay_6 = Pin(12, Pin.OUT)  # Humidifier
+relay_6 = Pin(12, Pin.OUT)  # humidityidifier
 relay_7 = Pin(11, Pin.OUT)  # Exhaust fan
 relay_8 = Pin(10, Pin.OUT)  # Heat lamps
 relay_9 = Pin(18, Pin.OUT)  # Mini exhaust
 relay_10 = Pin(27, Pin.OUT)
-relay_11 = Pin(26, Pin.OUT)  # Dehumidifier #1
-relay_12 = Pin(22, Pin.OUT)  # Dehumidifier #2
-relay_13 = Pin(21, Pin.OUT)  # Dehumidifier #3
-relay_14 = Pin(20, Pin.OUT)  # Dehumidifier #4
+relay_11 = Pin(26, Pin.OUT)  # Dehumidityidifier #1
+relay_12 = Pin(22, Pin.OUT)  # Dehumidityidifier #2
+relay_13 = Pin(21, Pin.OUT)  # Dehumidityidifier #3
+relay_14 = Pin(20, Pin.OUT)  # Dehumidityidifier #4
 relay_15 = Pin(19, Pin.OUT)
 
 # system timers for display and hour counter
@@ -327,7 +327,7 @@ timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC, callback=system_control
 # set to maximum values for initial running of program to establish low values
 temp_f = 212
 temp_c = 100
-hum = 100
+humidity = 100
 
 # ensure all relays are off at the start of program
 relay_1.value(0)
