@@ -24,18 +24,18 @@ def database(list):
             daily_water = list[5]
             light_time_off = list[7]
             program_time = datetime.now()
-            test_data = [(temp_f, temp_c, humidity, daily_water, light_time_on, light_time_off, system_timer, 
+            grow_data = [(temp_f, temp_c, humidity, daily_water, light_time_on, light_time_off, system_timer, 
                         program_time, plant_id)]
             
             # the <%s> tells python that more data will come after the execution of that line
             insert_main_data = """
             INSERT INTO grow_values 
-                (temp_f, temp_c, humidity, daily_water, fert_water, light_on, light_off, 
-                soil_moisture, program_time, plant_id)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+                (temp_f, temp_c, humidity, daily_water, light_time_on, light_time_off, 
+                system_timer, program_time, plant_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) 
             """
             with connection.cursor() as cursor:
-                cursor.executemany(insert_main_data, test_data)  # change to .execute for one arguement
+                cursor.executemany(insert_main_data, grow_data)  # change to .execute for one arguement
                 connection.commit()
                 print("complete")
     except Error as e:
