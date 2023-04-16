@@ -62,12 +62,12 @@ def light_controller():
         if system_timer <= 23:
             if light_redundancy_check == 0:
                 relay_2.value(1)
-                relay_3.value(1)
+                relay_1.value(1)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
                 relay_2.value(1)
-                relay_3.value(1)
+                relay_1.value(1)
                 light_time_on += 24
                 light_redundancy_check = 0
                 system_timer = 0
@@ -75,12 +75,12 @@ def light_controller():
         if system_timer <= 23:
             if light_redundancy_check == 0:
                 relay_2.value(1)
-                relay_3.value(1)
+                relay_1.value(1)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
                 relay_2.value(1)
-                relay_3.value(1)
+                relay_1.value(1)
                 light_time_on += 24
                 light_redundancy_check = 0
                 system_timer = 0
@@ -88,13 +88,13 @@ def light_controller():
         if system_timer == 12:
             if light_redundancy_check == 0:
                 relay_2.value(0)
-                relay_3.value(0)
+                relay_1.value(0)
                 light_time_on += 12
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
                 relay_2.value(1)
-                relay_3.value(1)
+                relay_1.value(1)
                 light_time_off += 12
                 light_redundancy_check = 0
                 system_timer = 0
@@ -102,12 +102,12 @@ def light_controller():
         if system_timer <= 23:
             if light_redundancy_check == 0:
                 relay_2.value(0)
-                relay_3.value(0)
+                relay_1.value(0)
                 light_redundancy_check += 1
         if system_timer == 24:
             if light_redundancy_check == 1:
                 relay_2.value(0)
-                relay_3.value(0)
+                relay_1.value(0)
                 light_time_off += 24
                 light_redundancy_check = 0
                 system_timer = 0
@@ -308,9 +308,9 @@ light_time_off = 0
 database_values = []
 
 # GPIO relay assignments
-relay_1 = Pin(17, Pin.OUT)
+relay_1 = Pin(17, Pin.OUT)  # Lateral lights
 relay_2 = Pin(16, Pin.OUT)  # Main light
-relay_3 = Pin(15, Pin.OUT)  # Lateral lights
+relay_3 = Pin(15, Pin.OUT)  
 relay_4 = Pin(14, Pin.OUT)  # Water pump
 relay_5 = Pin(13, Pin.OUT)
 relay_6 = Pin(12, Pin.OUT)  # humidityidifier
@@ -362,7 +362,7 @@ initial_light_reading = int(database_values[2])
 light_time_on = int(database_values[3])
 light_time_off = int(database_values[4])
 relay_2.value(initial_light_reading)
-relay_3.value(initial_light_reading)
+relay_1.value(initial_light_reading)
 
 # close .txt file
 database()
