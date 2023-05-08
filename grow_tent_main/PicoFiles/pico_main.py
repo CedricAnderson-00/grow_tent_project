@@ -201,17 +201,17 @@ try:
     def tent_environment():
         """Function that controls the temperature and humidity environment of the grow tent."""
         
-        global relay_8, temp_c, temp_f, hum, toggle_one, toggle_two, toggle_three, toggle_four, temp_check_value, humidity_check_value, low_temp_check_value, low_humidity_check_value
+        global relay_8, relay_9, temp_c, temp_f, hum, toggle_one, toggle_two, toggle_three, toggle_four, temp_check_value, humidity_check_value, low_temp_check_value, low_humidity_check_value
         
         # check toggle switches to determine what maximum values are.
         if toggle_one.value() == 1:
             temp_check_value = 97
-            low_temp_check_value = 78
+            low_temp_check_value = 82
             humidity_check_value = 65
             low_humidity_check_value = 55
         if toggle_two.value() == 1:
             temp_check_value = 85
-            low_temp_check_value = 78
+            low_temp_check_value = 86
             humidity_check_value = 55
             low_humidity_check_value = 48
         if toggle_three.value() == 1:
@@ -221,7 +221,7 @@ try:
             low_humidity_check_value = 42
         if toggle_four.value() == 1:
             temp_check_value = 76
-            low_temp_check_value = 70
+            low_temp_check_value = 72
             humidity_check_value = 42
             low_humidity_check_value = 38
         
@@ -235,10 +235,10 @@ try:
         if temp_f > temp_check_value:
             relay_8.value(0)
             if temp_f > (temp_check_value + 5):
-                relay_1.value(1)
+                relay_9.value(1)
         if temp_f < low_temp_check_value:  # the gap in temp_c is to reduce wear on relay
-            relay_1.value(0)
-            if temp_f < low_temp_check_value - 2:
+            relay_9.value(0)
+            if temp_f < (low_temp_check_value - 2):
                 relay_8.value(1)
 
         # this logic will check humidity levels and operate relay
@@ -252,6 +252,7 @@ try:
                 relay_14.value(1)
         elif hum < low_humidity_check_value:
             relay_6.value(1)
+            relay_1.value(0)
             relay_11.value(0)
             relay_12.value(0)
             relay_13.value(0)
