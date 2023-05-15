@@ -146,10 +146,10 @@ try:
                     water_redundancy_check += 1
             if system_timer == 24:
                 if water_redundancy_check == 1:
-                    relay_4.value(1)
-                    sleep(25)
-                    relay_4.value(0)
-                    dispensed_water_total += 225
+                    #relay_4.value(1)
+                    #sleep(25)
+                    #relay_4.value(0)
+                    #dispensed_water_total += 225
                     water_redundancy_check = 0
         if toggle_three.value() == 1:
             if system_timer == 12:
@@ -159,12 +159,12 @@ try:
                     relay_4.value(0)
                     dispensed_water_total += 500
                     water_redundancy_check += 1
-            if system_timer == 24:
+            if system_timer == 13:
                 if water_redundancy_check == 1:
                     relay_4.value(1)
-                    sleep(55)
+                    sleep(40)
                     relay_4.value(0)
-                    dispensed_water_total += 500
+                    dispensed_water_total += 400
                     water_redundancy_check = 0
         if toggle_four.value() == 1:
             if system_timer == 12:
