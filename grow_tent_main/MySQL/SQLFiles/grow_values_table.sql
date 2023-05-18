@@ -4,13 +4,10 @@ CREATE TABLE grow_values (
     temp_c DECIMAL(5, 2),
     humidity INT,
     water_amount DECIMAL(5, 2),
-    fert_amount DECIMAL(5, 2),
     light_on DECIMAL(5, 2),
     light_off DECIMAL(5, 2),
-    soil_moisture INT,
-    soil_ph INT,
-    program_time DATETIME,
-    first_flower DATETIME,
+    program_time INT,
+    timestamp DATETIME,
     plant_id INT,
     FOREIGN KEY(plant_id) REFERENCES plants(id)
 );

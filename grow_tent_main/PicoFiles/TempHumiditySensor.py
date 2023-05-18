@@ -12,7 +12,7 @@ def get_temp_hum():
         """
         
         # remember to change sensor if using one other than an Inland DHT11
-        sensor = dht.DHT11(Pin(10))
+        sensor = dht.DHT11(Pin(7))
         sensor2 = dht.DHT11(Pin(11)) 
 
         # values of sensor 1  
