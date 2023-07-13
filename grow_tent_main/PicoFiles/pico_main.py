@@ -267,6 +267,10 @@ try:
         # hex addresses for lcd(s)
         # SDA(8) SCL(9)
         lcd_one = 0x27  # temperature f
+        
+        # reset counter to 0 when over 99
+        if error_counter > 99:
+            error_counter = 0
 
         lcd(lcd_one, str(temp_f), str(hum), str(temp_c), str(system_timer), str(error_counter), 1)
         
@@ -295,13 +299,13 @@ try:
     database_values = []
 
     # GPIO relay assignments
-    relay_1 = Pin(17, Pin.OUT)  # Lateral light
+    relay_1 = Pin(17, Pin.OUT)  # exhaust
     relay_2 = Pin(16, Pin.OUT)  # Main light
-    relay_3 = Pin(15, Pin.OUT)  
+    relay_3 = Pin(15, Pin.OUT)  # lateral light
     relay_4 = Pin(14, Pin.OUT)  # Water pump
     relay_5 = Pin(13, Pin.OUT)  # Lateral Lights x3
     relay_6 = Pin(12, Pin.OUT)  # Humidifier
-    relay_7 = Pin(11, Pin.OUT)  # Exhaust fan
+    relay_7 = Pin(11, Pin.OUT)  
     relay_8 = Pin(10, Pin.OUT)  # Heat lamps
     relay_9 = Pin(18, Pin.OUT)  # Mini exhaust
     relay_10 = Pin(27, Pin.OUT)
@@ -373,4 +377,5 @@ try:
                 main_body(toggle_four)
 except (TypeError, ValueError, IndexError):
     error_counter += 1
+
 
