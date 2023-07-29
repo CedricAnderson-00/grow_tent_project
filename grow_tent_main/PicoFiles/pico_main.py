@@ -137,42 +137,44 @@ try:
                     water_redundancy_check = 0
         if toggle_two.value() == 1:
             if system_timer == 23 & water_redundancy_check == 3:
-                relay_4.value(1)
-                sleep(55)
-                relay_4.value(0)
-                dispensed_water_total += 500
-                water_redundancy_check = 4
+                    relay_4.value(1)
+                    sleep(55)
+                    relay_4.value(0)
+                    dispensed_water_total += 500
+                    water_redundancy_check = 4
             elif system_timer == 24 & water_redundancy_check == 4:
-                relay_4.value(1)
-                sleep(4)
-                relay_4.value(0)
-                dispensed_water_total += 400
-                water_redundancy_check = 0
+                    relay_4.value(1)
+                    sleep(4)
+                    relay_4.value(0)
+                    dispensed_water_total += 400
+                    water_redundancy_check = 0
             elif system_timer == 12:
                 water_redundancy_check += 1
             elif system_timer == 24:
                 water_redundancy_check += 1
         if toggle_three.value() == 1:
             if system_timer == 12 & water_redundancy_check == 0:
-                relay_4.value(1)
-                sleep(55)
-                relay_4.value(0)
-                dispensed_water_total += 500
-                water_redundancy_check += 1
+                    relay_4.value(1)
+                    sleep(55)
+                    relay_4.value(0)
+                    dispensed_water_total += 500
+                    water_redundancy_check += 1
             if system_timer == 13 & water_redundancy_check == 1:
-                relay_4.value(1)
-                sleep(40)
-                relay_4.value(0)
-                dispensed_water_total += 400
-                water_redundancy_check = 0
+                    relay_4.value(1)
+                    sleep(40)
+                    relay_4.value(0)
+                    dispensed_water_total += 400
+                    water_redundancy_check = 0
         if toggle_four.value() == 1:
             if system_timer == 12 & water_redundancy_check == 0:
-                water_redundancy_check += 1
+                    water_redundancy_check += 1
             if system_timer == 24 & water_redundancy_check == 1:
-                water_redundancy_check = 0
+                    water_redundancy_check = 0
 
     def database():
-        """Function that creates a .txt file to store system time. Reads data from file to continue system_timer """
+        """Function that creates a .txt file to store system time.
+        Reads data from file to continue system_timer
+        """
 
         global system_timer, counter, light_redundancy_check, relay_2, database_values, light_value_database
 
@@ -223,7 +225,7 @@ try:
         temp_c = x[0]
         hum = x[2]
         temp_f = x[1]
-        # print(temp_f)
+        print(x)
 
         # logic to test current state of system
         if temp_f > temp_check_value:
@@ -259,7 +261,7 @@ try:
 
         # hex addresses for lcd(s)
         # SDA(8) SCL(9)
-        lcd_one = 0x27  # temperature f
+        lcd_one = 0x23  # temperature f
 
         # reset counter to 0 when over 99
         if error_counter > 99:
@@ -394,3 +396,4 @@ try:
                 main_body(toggle_four)
 except (TypeError, ValueError, IndexError):
     error_counter += 1
+
