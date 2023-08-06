@@ -201,29 +201,29 @@ try:
 
         # check toggle switches to determine what maximum values are.
         if toggle_one.value() == 1:
-            temp_check_value = 97
-            low_temp_check_value = 82
-            humidity_check_value = 65
+            temp_check_value         = 97
+            low_temp_check_value     = 82
+            humidity_check_value     = 65
             low_humidity_check_value = 55
         if toggle_two.value() == 1:
-            temp_check_value = 85
-            low_temp_check_value = 86
-            humidity_check_value = 55
+            temp_check_value         = 85
+            low_temp_check_value     = 86
+            humidity_check_value     = 55
             low_humidity_check_value = 48
         if toggle_three.value() == 1:
-            temp_check_value = 78
-            low_temp_check_value = 68
-            humidity_check_value = 50
+            temp_check_value         = 78
+            low_temp_check_value     = 68
+            humidity_check_value     = 50
             low_humidity_check_value = 42
         if toggle_four.value() == 1:
-            temp_check_value = 76
-            low_temp_check_value = 72
-            humidity_check_value = 42
+            temp_check_value         = 76
+            low_temp_check_value     = 72
+            humidity_check_value     = 42
             low_humidity_check_value = 38
 
-        x = get_temp_hum(sensor)
+        x      = get_temp_hum(sensor)
         temp_c = x[0]
-        hum = x[2]
+        hum    = x[2]
         temp_f = x[1]
 
         # logic to test current state of system
@@ -276,14 +276,14 @@ try:
 
         if toggle_one.value() == 1 & toggle_three.value() == 1:
             sleep(5)
-            system_timer = 0
-            counter = 0
-            error_counter = 0
+            system_timer           = 0
+            counter                = 0
+            error_counter          = 0
             water_redundancy_check = 0
             light_redundancy_check = 0
-            dispensed_water_total = 0
-            light_time_off = 0
-            light_time_on = 0
+            dispensed_water_total  = 0
+            light_time_off         = 0
+            light_time_on          = 0
 
     def adjust_light_distance():
         """Function that monitors the distance between main light and plant. Uses PWM to control motor"""
@@ -314,45 +314,45 @@ try:
         pwmForwardDown.duty_u16(0)
 
     # toggle switch GPIO
-    toggle_one = Pin(2, Pin.IN, Pin.PULL_DOWN)  # Grow phase 1
-    toggle_two = Pin(3, Pin.IN, Pin.PULL_DOWN)  # Grow phase 2
+    toggle_one   = Pin(2, Pin.IN, Pin.PULL_DOWN)  # Grow phase 1
+    toggle_two   = Pin(3, Pin.IN, Pin.PULL_DOWN)  # Grow phase 2
     toggle_three = Pin(4, Pin.IN, Pin.PULL_DOWN)  # Grow phase 3
-    toggle_four = Pin(5, Pin.IN, Pin.PULL_DOWN)  # Grow phase 4
+    toggle_four  = Pin(5, Pin.IN, Pin.PULL_DOWN)  # Grow phase 4
     
     # IR distance sensor
     distanceSensor = Pin(6, Pin.IN, Pin.PULL_DOWN)  # Manual watering
     
     # PWM motors
     pwmForwardDown = PWM(Pin(0, Pin.IN, Pin.PULL_DOWN))
-    pwmReverseUp = PWM(Pin(1, Pin.IN, Pin.PULL_DOWN))
+    pwmReverseUp   = PWM(Pin(1, Pin.IN, Pin.PULL_DOWN))
 
     # timer values
-    light_time_on = 0
-    system_timer = 0
-    counter = 0
-    light_time_off = 0
-    dispensed_water_total = 0
-    pump_two_total = 0
-    pump_three_total = 0
-    water_redundancy_check = 0
-    light_redundancy_check = 0
-    temp_check_value = 0
-    humidity_check_value = 0
-    low_temp_check_value = 0
+    light_time_on            = 0
+    system_timer             = 0
+    counter                  = 0
+    light_time_off           = 0
+    dispensed_water_total    = 0
+    pump_two_total           = 0
+    pump_three_total         = 0
+    water_redundancy_check   = 0
+    light_redundancy_check   = 0
+    temp_check_value         = 0
+    humidity_check_value     = 0
+    low_temp_check_value     = 0
     low_humidity_check_value = 0
-    error_counter = 0
-    database_values = []
+    error_counter            = 0
+    database_values          = []
 
     # GPIO relay assignments
-    relay_1 = Pin(17, Pin.OUT)  # exhaust
-    relay_2 = Pin(16, Pin.OUT)  # Main light
-    relay_3 = Pin(15, Pin.OUT)  # lateral light
-    relay_4 = Pin(14, Pin.OUT)  # Water pump
-    relay_5 = Pin(13, Pin.OUT)  # Lateral Lights x3
-    relay_6 = Pin(12, Pin.OUT)  # Humidifier
-    relay_7 = Pin(11, Pin.OUT)
-    relay_8 = Pin(10, Pin.OUT)  # Heat lamps
-    relay_9 = Pin(18, Pin.OUT)  # Mini exhaust
+    relay_1  = Pin(17, Pin.OUT)  # exhaust
+    relay_2  = Pin(16, Pin.OUT)  # Main light
+    relay_3  = Pin(15, Pin.OUT)  # lateral light
+    relay_4  = Pin(14, Pin.OUT)  # Water pump
+    relay_5  = Pin(13, Pin.OUT)  # Lateral Lights x3
+    relay_6  = Pin(12, Pin.OUT)  # Humidifier
+    relay_7  = Pin(11, Pin.OUT)
+    relay_8  = Pin(10, Pin.OUT)  # Heat lamps
+    relay_9  = Pin(18, Pin.OUT)  # Mini exhaust
     relay_10 = Pin(27, Pin.OUT)
     relay_11 = Pin(26, Pin.OUT)  # Dehumidifier #1
     relay_12 = Pin(22, Pin.OUT)  # Dehumidifier #2
@@ -363,7 +363,7 @@ try:
     # system timers for display and hour counter
     display_timer = Timer(period=20_000, mode=Timer.PERIODIC,
                           callback=display_lcd)  # one minute timer
-    timer_one = Timer(period=3_600_000, mode=Timer.PERIODIC,
+    timer_one     = Timer(period=3_600_000, mode=Timer.PERIODIC,
                       callback=system_controller)
 
     # low values
@@ -371,7 +371,7 @@ try:
     sensor = "sht31"
     temp_f = 212
     temp_c = 100
-    hum = 100
+    hum    = 100
 
     # ensure all relays are off at the start of program
     relay_1.value(0)
@@ -394,10 +394,10 @@ try:
     database()
 
     # Assign values from database() to respected variable
-    system_timer = int(database_values[0])
+    system_timer           = int(database_values[0])
     water_redundancy_check = int(database_values[2])
     light_redundancy_check = int(database_values[1])
-    initial_light_reading = int(database_values[3])
+    initial_light_reading  = int(database_values[3])
     relay_2.value(initial_light_reading)
     relay_3.value(initial_light_reading)
     relay_5.value(initial_light_reading)
