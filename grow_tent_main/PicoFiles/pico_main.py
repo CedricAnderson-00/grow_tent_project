@@ -1,5 +1,5 @@
 from time import sleep
-from machine import Timer, Pin, UART
+from machine import Timer, Pin, UART, PWM
 from TempHumiditySensor import get_temp_hum
 from LcdDisplay import lcd
 
@@ -63,7 +63,7 @@ try:
                     relay_5.value(1)
                     light_redundancy_check += 1
             if system_timer == 24:
-                if light_redundancy_check == 1:
+                if light_redundancy_check >= 1:
                     relay_2.value(1)
                     relay_3.value(1)
                     relay_5.value(1)
@@ -77,7 +77,7 @@ try:
                     relay_5.value(1)
                     light_redundancy_check += 1
             if system_timer == 24:
-                if light_redundancy_check == 1:
+                if light_redundancy_check >= 1:
                     relay_2.value(1)
                     relay_3.value(1)
                     relay_5.value(1)
@@ -91,7 +91,7 @@ try:
                     relay_5.value(0)
                     light_redundancy_check += 1
             if system_timer == 24:
-                if light_redundancy_check == 1:
+                if light_redundancy_check >= 1:
                     relay_2.value(1)
                     relay_3.value(1)
                     relay_5.value(1)
@@ -105,7 +105,7 @@ try:
                     relay_5.value(0)
                     light_redundancy_check += 1
             if system_timer == 24:
-                if light_redundancy_check == 1:
+                if light_redundancy_check >= 1:
                     relay_2.value(0)
                     relay_3.value(0)
                     relay_5.value(0)
@@ -130,40 +130,44 @@ try:
                     dispensed_water_total += 30
                     water_redundancy_check += 1
             if system_timer == 24:
-                if water_redundancy_check == 1:
+                if water_redundancy_check >= 1:
                     relay_4.value(1)
                     sleep(2)
                     relay_4.value(0)
                     water_redundancy_check = 0
         if toggle_two.value() == 1:
-            if system_timer == 23 & water_redundancy_check == 3:
+            if system_timer == 23:
+                if water_redundancy_check == 3:
                     relay_4.value(1)
                     sleep(55)
                     relay_4.value(0)
-                    dispensed_water_total += 500
+                    dispensed_water_total += 550
                     water_redundancy_check = 4
-            elif system_timer == 24 & water_redundancy_check == 4:
+            if system_timer == 24:
+                if water_redundancy_check >= 4:
                     relay_4.value(1)
-                    sleep(4)
+                    sleep(45)
                     relay_4.value(0)
-                    dispensed_water_total += 400
+                    dispensed_water_total += 450
                     water_redundancy_check = 0
-            elif system_timer == 12:
+            if system_timer == 12:
                 water_redundancy_check += 1
-            elif system_timer == 24:
+            if system_timer == 24:
                 water_redundancy_check += 1
         if toggle_three.value() == 1:
-            if system_timer == 12 & water_redundancy_check == 0:
+            if system_timer == 12:
+                if water_redundancy_check == 0:
                     relay_4.value(1)
                     sleep(55)
                     relay_4.value(0)
-                    dispensed_water_total += 500
-                    water_redundancy_check += 1
-            if system_timer == 13 & water_redundancy_check == 1:
+                    dispensed_water_total += 550
+                    water_redundancy_check = 1
+            if system_timer == 13:
+                if water_redundancy_check >= 1:
                     relay_4.value(1)
-                    sleep(40)
+                    sleep(45)
                     relay_4.value(0)
-                    dispensed_water_total += 400
+                    dispensed_water_total += 450
                     water_redundancy_check = 0
         if toggle_four.value() == 1:
             if system_timer == 12 & water_redundancy_check == 0:
@@ -225,12 +229,11 @@ try:
         temp_c = x[0]
         hum = x[2]
         temp_f = x[1]
-        print(x)
 
         # logic to test current state of system
         if temp_f > temp_check_value:
             relay_8.value(0)
-            if temp_f > (temp_check_value + 5):
+            if temp_f > (temp_check_value + 3):
                 relay_9.value(1)
         if temp_f < low_temp_check_value:  # the gap in temp_c is to reduce wear on relay
             relay_9.value(0)
@@ -257,18 +260,18 @@ try:
     def display_lcd(t):
         """Timed function that transmits data to LCDs"""
 
-        global hum, temp_f, temp_c, light_time_off, system_timer, error_counter
+        global hum, temp_f, temp_c, light_time_off, system_timer, error_counter, water_redundancy_check
 
         # hex addresses for lcd(s)
         # SDA(8) SCL(9)
-        lcd_one = 0x23  # temperature f
+        lcd_one = 0x27  # temperature f
 
         # reset counter to 0 when over 99
-        if error_counter > 99:
-            error_counter = 0
+#         if error_counter > 99:
+#             error_counter = 0
 
         lcd(lcd_one, str(temp_f), str(hum), str(temp_c),
-            str(system_timer), str(error_counter), 1)
+            str(system_timer), str(water_redundancy_check), 1)
 
     def system_reset():
         """ Function to reset all values to 0 """
@@ -286,14 +289,46 @@ try:
             light_time_off = 0
             light_time_on = 0
 
-            print(system_timer)
+    def adjust_light_distance():
+        """Function that monitors the distance between main light and plant. Uses PWM to control motor"""
+
+        global distanceSensor, pwmReverseUp
+
+        while distanceSensor.value() == 1:
+            pwmReverseUp.freq(20)
+            pwmReverseUp.duty_u16(20000)
+
+    def light_calibration():
+        """ Sets light height to correct distance at system start-up """
+
+        global distanceSensor, pwmForwardDown, pwmReverseUp
+
+        pwmReverseUp.freq(400)
+        pwmReverseUp.duty_u16(65535)
+        sleep(3)
+        pwmReverseUp.duty_u16(0)
+                
+        # lower light until plant is detected
+        while distanceSensor.value() == 0:
+            pwmForwardDown.freq(400)
+            pwmForwardDown.duty_u16(65535)
+
+        pwmForwardDown.duty_u16(0)
+            
+        pwmForwardDown.duty_u16(0)
 
     # toggle switch GPIO
     toggle_one = Pin(2, Pin.IN, Pin.PULL_DOWN)  # Grow phase 1
     toggle_two = Pin(3, Pin.IN, Pin.PULL_DOWN)  # Grow phase 2
     toggle_three = Pin(4, Pin.IN, Pin.PULL_DOWN)  # Grow phase 3
     toggle_four = Pin(5, Pin.IN, Pin.PULL_DOWN)  # Grow phase 4
-    toggle_five = Pin(6, Pin.IN, Pin.PULL_DOWN)  # Manual watering
+    
+    # IR distance sensor
+    distanceSensor = Pin(6, Pin.IN, Pin.PULL_DOWN)  # Manual watering
+    
+    # PWM motors
+    pwmForwardDown = PWM(Pin(0, Pin.IN, Pin.PULL_DOWN))
+    pwmReverseUp = PWM(Pin(1, Pin.IN, Pin.PULL_DOWN))
 
     # timer values
     light_time_on = 0
@@ -373,6 +408,7 @@ try:
 
     # close .txt file
     database()
+    light_calibration()
 
     # notify user that the program is running
     print("*****Program running*****")
@@ -387,13 +423,14 @@ try:
             while toggle_one.value() == 1:
                 main_body(toggle_one)
             while toggle_two.value() == 1:
-                water_redundancy_check = 0
+                #water_redundancy_check = 0
                 main_body(toggle_two)
             while toggle_three.value() == 1:
-                water_redundancy_check = 0
+                #water_redundancy_check = 0
                 main_body(toggle_three)
             while toggle_four.value() == 1:
                 main_body(toggle_four)
 except (TypeError, ValueError, IndexError):
     error_counter += 1
+
 
