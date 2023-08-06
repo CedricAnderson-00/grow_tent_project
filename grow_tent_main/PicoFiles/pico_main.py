@@ -139,17 +139,21 @@ try:
                     relay_4.value(0)
                     dispensed_water_total += 550
                     water_redundancy_check = 4
-            if system_timer == 24:
+            elif system_timer == 24:
                 if water_redundancy_check >= 4:
                     relay_4.value(1)
                     sleep(45)
                     relay_4.value(0)
                     dispensed_water_total += 450
                     water_redundancy_check = 0
-            if system_timer == 12:
-                water_redundancy_check += 1
-            if system_timer == 24:
-                water_redundancy_check += 1
+            elif system_timer == 12:
+                if water_redundancy_check == 0:
+                    water_redundancy_check += 1
+                elif water_redundancy_check == 2:
+                    water_redundancy_check += 1
+            elif system_timer == 24:
+                if water_redundancy_check == 1:
+                    water_redundancy_check += 1
         if toggle_three.value() == 1:
             if system_timer == 12:
                 if water_redundancy_check == 0:
@@ -404,7 +408,6 @@ try:
 
     # close .txt file
     database()
-    light_calibration()
 
     # notify user that the program is running
     print("*****Program running*****")
