@@ -11,10 +11,6 @@ try:
         global system_timer, system_led, dispensed_water_total, temp_c, temp_f, hum, relay_4, error_counter
         try:
             while switch.value() == 1:
-                if toggle_five.value() == 1:  # manual water
-                    relay_4.value(1)
-                    sleep(10)
-                    relay_4.value(0)
                 uart = UART(0, 115200)
                 system_led.toggle()
                 water_plants()
