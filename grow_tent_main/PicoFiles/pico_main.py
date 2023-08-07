@@ -139,8 +139,8 @@ try:
                     relay_4.value(0)
                     dispensed_water_total += 550
                     water_redundancy_check = 4
-            elif system_timer == 24:
-                if water_redundancy_check >= 4:
+            elif water_redundancy_check >= 4:
+                if system_timer == 24:
                     relay_4.value(1)
                     sleep(45)
                     relay_4.value(0)
@@ -431,5 +431,6 @@ try:
                 main_body(toggle_four)
 except (TypeError, ValueError, IndexError):
     error_counter += 1
+
 
 
