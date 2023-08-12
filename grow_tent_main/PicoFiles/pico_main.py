@@ -52,61 +52,53 @@ try:
         global system_timer, relay_2, light_redundancy_check
 
         if toggle_one.value() == 1:
-            if system_timer <= 23:
-                if light_redundancy_check == 0:
-                    relay_2.value(1)
-                    relay_3.value(1)
-                    relay_5.value(1)
-                    light_redundancy_check += 1
-            if system_timer == 24:
-                if light_redundancy_check >= 1:
-                    relay_2.value(1)
-                    relay_3.value(1)
-                    relay_5.value(1)
-                    light_redundancy_check = 0
-                    system_timer = 0
+            if system_timer <= 23 and light_redundancy_check == 0:
+                relay_2.value(1)
+                relay_3.value(1)
+                relay_5.value(1)
+                light_redundancy_check += 1
+            if system_timer == 24 and light_redundancy_check >= 1:
+                relay_2.value(1)
+                relay_3.value(1)
+                relay_5.value(1)
+                light_redundancy_check = 0
+                system_timer = 0
         if toggle_two.value() == 1:
-            if system_timer <= 23:
-                if light_redundancy_check == 0:
-                    relay_2.value(1)
-                    relay_3.value(1)
-                    relay_5.value(1)
-                    light_redundancy_check += 1
-            if system_timer == 24:
-                if light_redundancy_check >= 1:
-                    relay_2.value(1)
-                    relay_3.value(1)
-                    relay_5.value(1)
-                    light_redundancy_check = 0
-                    system_timer = 0
+            if system_timer <= 23 and light_redundancy_check == 0:
+                relay_2.value(1)
+                relay_3.value(1)
+                relay_5.value(1)
+                light_redundancy_check += 1
+            if system_timer == 24 and light_redundancy_check >= 1:
+                relay_2.value(1)
+                relay_3.value(1)
+                relay_5.value(1)
+                light_redundancy_check = 0
+                system_timer = 0
         if toggle_three.value() == 1:
-            if system_timer == 12:
-                if light_redundancy_check == 0:
-                    relay_2.value(0)
-                    relay_3.value(0)
-                    relay_5.value(0)
-                    light_redundancy_check += 1
-            if system_timer == 24:
-                if light_redundancy_check >= 1:
-                    relay_2.value(1)
-                    relay_3.value(1)
-                    relay_5.value(1)
-                    light_redundancy_check = 0
-                    system_timer = 0
+            if system_timer == 12 and light_redundancy_check == 0:
+                relay_2.value(0)
+                relay_3.value(0)
+                relay_5.value(0)
+                light_redundancy_check += 1
+            if system_timer == 24 and light_redundancy_check >= 1:
+                relay_2.value(1)
+                relay_3.value(1)
+                relay_5.value(1)
+                light_redundancy_check = 0
+                system_timer = 0
         if toggle_four.value() == 1:
-            if system_timer <= 23:
-                if light_redundancy_check == 0:
-                    relay_2.value(0)
-                    relay_3.value(0)
-                    relay_5.value(0)
-                    light_redundancy_check += 1
-            if system_timer == 24:
-                if light_redundancy_check >= 1:
-                    relay_2.value(0)
-                    relay_3.value(0)
-                    relay_5.value(0)
-                    light_redundancy_check = 0
-                    system_timer = 0
+            if system_timer <= 23 and light_redundancy_check == 0:
+                relay_2.value(0)
+                relay_3.value(0)
+                relay_5.value(0)
+                light_redundancy_check += 1
+            if system_timer == 24 and light_redundancy_check >= 1:
+                relay_2.value(0)
+                relay_3.value(0)
+                relay_5.value(0)
+                light_redundancy_check = 0
+                system_timer = 0
 
     def water_plants():
         """Function that uses system time to water plants at 12 hour intervals"""
@@ -118,34 +110,30 @@ try:
         global dispensed_water_total
 
         if toggle_one.value() == 1:
-            if system_timer == 12:
-                if water_redundancy_check == 0:
-                    relay_4.value(1)
-                    sleep(3)
-                    relay_4.value(0)
-                    dispensed_water_total += 30
-                    water_redundancy_check += 1
-            if system_timer == 24:
-                if water_redundancy_check >= 1:
-                    relay_4.value(1)
-                    sleep(2)
-                    relay_4.value(0)
-                    water_redundancy_check = 0
+            if system_timer == 12 and water_redundancy_check == 0:
+                relay_4.value(1)
+                sleep(3)
+                relay_4.value(0)
+                dispensed_water_total += 30
+                water_redundancy_check += 1
+            if system_timer == 24 and water_redundancy_check >= 1:
+                relay_4.value(1)
+                sleep(2)
+                relay_4.value(0)
+                water_redundancy_check = 0
         if toggle_two.value() == 1:
-            if system_timer == 23:
-                if water_redundancy_check == 3:
-                    relay_4.value(1)
-                    sleep(55)
-                    relay_4.value(0)
-                    dispensed_water_total += 550
-                    water_redundancy_check = 4
-            elif water_redundancy_check >= 4:
-                if system_timer == 24:
-                    relay_4.value(1)
-                    sleep(45)
-                    relay_4.value(0)
-                    dispensed_water_total += 450
-                    water_redundancy_check = 0
+            if system_timer == 23 and water_redundancy_check == 3:
+                relay_4.value(1)
+                sleep(55)
+                relay_4.value(0)
+                dispensed_water_total += 550
+                water_redundancy_check = 4
+            elif water_redundancy_check >= 4 and system_timer >= 24:
+                relay_4.value(1)
+                sleep(45)
+                relay_4.value(0)
+                dispensed_water_total += 450
+                water_redundancy_check = 0
             elif system_timer == 12:
                 if water_redundancy_check == 0:
                     water_redundancy_check += 1
@@ -155,24 +143,22 @@ try:
                 if water_redundancy_check == 1:
                     water_redundancy_check += 1
         if toggle_three.value() == 1:
-            if system_timer == 12:
-                if water_redundancy_check == 0:
-                    relay_4.value(1)
-                    sleep(55)
-                    relay_4.value(0)
-                    dispensed_water_total += 550
-                    water_redundancy_check = 1
-            if system_timer == 13:
-                if water_redundancy_check >= 1:
-                    relay_4.value(1)
-                    sleep(45)
-                    relay_4.value(0)
-                    dispensed_water_total += 450
-                    water_redundancy_check = 0
+            if system_timer == 12 and water_redundancy_check == 0:
+                relay_4.value(1)
+                sleep(55)
+                relay_4.value(0)
+                dispensed_water_total += 550
+                water_redundancy_check = 1
+            if system_timer == 13 and water_redundancy_check >= 1:
+                relay_4.value(1)
+                sleep(45)
+                relay_4.value(0)
+                dispensed_water_total += 450
+                water_redundancy_check = 0
         if toggle_four.value() == 1:
-            if system_timer == 12 & water_redundancy_check == 0:
+            if system_timer == 12 and water_redundancy_check == 0:
                     water_redundancy_check += 1
-            if system_timer == 24 & water_redundancy_check == 1:
+            if system_timer == 24 and water_redundancy_check == 1:
                     water_redundancy_check = 0
 
     def database():
@@ -215,11 +201,13 @@ try:
             humidity_check_value     = 55
             low_humidity_check_value = 48
         if toggle_three.value() == 1:
+            relay_1.value(1)
             temp_check_value         = 78
             low_temp_check_value     = 68
             humidity_check_value     = 50
             low_humidity_check_value = 42
         if toggle_four.value() == 1:
+            relay_1.value(1)
             temp_check_value         = 76
             low_temp_check_value     = 72
             humidity_check_value     = 42
@@ -243,15 +231,27 @@ try:
         # this logic will check humidity levels and operate relay
         if hum > humidity_check_value:
             relay_6.value(0)
-            if hum >= humidity_check_value + 2:
-                relay_1.value(1)
+            if hum >= humidity_check_value + 2 and toggle_three.value() != 1 or toggle_four.value() != 1:
+                relay_1 .value(1)
                 relay_11.value(1)
                 relay_12.value(1)
                 relay_13.value(1)
                 relay_14.value(1)
-        elif hum < low_humidity_check_value:
-            relay_6.value(1)
-            relay_1.value(0)
+            else:
+                relay_11.value(1)
+                relay_12.value(1)
+                relay_13.value(1)
+                relay_14.value(1)
+                
+        if hum < low_humidity_check_value and toggle_three.value() != 1 or toggle_four.value() != 1:
+            relay_6 .value(1)
+            relay_1 .value(0)
+            relay_11.value(0)
+            relay_12.value(0)
+            relay_13.value(0)
+            relay_14.value(0)
+        else:
+            relay_6 .value(1)
             relay_11.value(0)
             relay_12.value(0)
             relay_13.value(0)
@@ -266,9 +266,9 @@ try:
         # SDA(8) SCL(9)
         lcd_one = 0x27  # temperature f
 
-        # reset counter to 0 when over 99
-#         if error_counter > 99:
-#             error_counter = 0
+        # # reset counter to 0 when over 99
+        # if error_counter > 99:
+        #     error_counter = 0
 
         lcd(lcd_one, str(temp_f), str(hum), str(temp_c),
             str(system_timer), str(water_redundancy_check), 1)
@@ -378,15 +378,15 @@ try:
     hum    = 100
 
     # ensure all relays are off at the start of program
-    relay_1.value(0)
-    relay_2.value(0)
-    relay_3.value(0)
-    relay_4.value(0)
-    relay_5.value(0)
-    relay_6.value(0)
-    relay_7.value(0)
-    relay_8.value(0)
-    relay_9.value(0)
+    relay_1 .value(0)
+    relay_2 .value(0)
+    relay_3 .value(0)
+    relay_4 .value(0)
+    relay_5 .value(0)
+    relay_6 .value(0)
+    relay_7 .value(0)
+    relay_8 .value(0)
+    relay_9 .value(0)
     relay_10.value(0)
     relay_11.value(0)
     relay_12.value(0)
@@ -431,6 +431,4 @@ try:
                 main_body(toggle_four)
 except (TypeError, ValueError, IndexError):
     error_counter += 1
-
-
-
+    
