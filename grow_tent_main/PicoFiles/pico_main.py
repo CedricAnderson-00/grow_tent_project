@@ -231,7 +231,7 @@ try:
         # this logic will check humidity levels and operate relay
         if hum > humidity_check_value:
             relay_6.value(0)
-            if hum >= humidity_check_value + 2 and toggle_three.value() != 1 or toggle_four.value() != 1:
+            if hum >= humidity_check_value + 2 and toggle_three.value() != 1 and toggle_four.value() != 1:
                 relay_1 .value(1)
                 relay_11.value(1)
                 relay_12.value(1)
@@ -243,14 +243,14 @@ try:
                 relay_13.value(1)
                 relay_14.value(1)
                 
-        if hum < low_humidity_check_value and toggle_three.value() != 1 or toggle_four.value() != 1:
+        if hum < low_humidity_check_value and toggle_three.value() != 1 and toggle_four.value() != 1:
             relay_6 .value(1)
             relay_1 .value(0)
             relay_11.value(0)
             relay_12.value(0)
             relay_13.value(0)
             relay_14.value(0)
-        else:
+        elif hum < low_humidity_check_value:
             relay_6 .value(1)
             relay_11.value(0)
             relay_12.value(0)
