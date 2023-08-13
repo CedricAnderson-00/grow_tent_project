@@ -187,7 +187,7 @@ try:
     def tent_environment():
         """Function that controls the temperature and humidity environment of the grow tent."""
 
-        global relay_8, relay_9, temp_c, temp_f, hum, toggle_one, toggle_two, toggle_three, toggle_four, temp_check_value, humidity_check_value, low_temp_check_value, low_humidity_check_value, sensor
+        global relay_8, relay_9, temp_c, temp_f, hum, toggle_one, toggle_two, toggle_three, toggle_four, temp_check_value, humidity_check_value, low_temp_check_value, low_humidity_check_value, sensor, error_counter
 
         # check toggle switches to determine what maximum values are.
         if toggle_one.value() == 1:
@@ -201,62 +201,74 @@ try:
             humidity_check_value     = 55
             low_humidity_check_value = 48
         if toggle_three.value() == 1:
-            relay_1.value(1)
             temp_check_value         = 78
             low_temp_check_value     = 68
             humidity_check_value     = 50
             low_humidity_check_value = 42
         if toggle_four.value() == 1:
-            relay_1.value(1)
             temp_check_value         = 76
             low_temp_check_value     = 72
             humidity_check_value     = 42
             low_humidity_check_value = 38
+        try:
+            x      = get_temp_hum(sensor)
+            temp_c = x[0]
+            hum    = x[2]
+            temp_f = x[1]
 
-        x      = get_temp_hum(sensor)
-        temp_c = x[0]
-        hum    = x[2]
-        temp_f = x[1]
+            # logic to test current state of system
+            if temp_f > temp_check_value:
+                relay_8.value(0)
+                if temp_f > (temp_check_value + 3):
+                    relay_9.value(1)
+            if temp_f < low_temp_check_value:  # the gap in temp_c is to reduce wear on relay
+                relay_9.value(0)
+                if temp_f < (low_temp_check_value - 2):
+                    relay_8.value(1)
 
-        # logic to test current state of system
-        if temp_f > temp_check_value:
-            relay_8.value(0)
-            if temp_f > (temp_check_value + 3):
-                relay_9.value(1)
-        if temp_f < low_temp_check_value:  # the gap in temp_c is to reduce wear on relay
-            relay_9.value(0)
-            if temp_f < (low_temp_check_value - 2):
-                relay_8.value(1)
-
-        # this logic will check humidity levels and operate relay
-        if hum > humidity_check_value:
-            relay_6.value(0)
-            if hum >= humidity_check_value + 2 and toggle_three.value() != 1 and toggle_four.value() != 1:
-                relay_1 .value(1)
-                relay_11.value(1)
-                relay_12.value(1)
-                relay_13.value(1)
-                relay_14.value(1)
-            else:
-                relay_11.value(1)
-                relay_12.value(1)
-                relay_13.value(1)
-                relay_14.value(1)
-                
-        if hum < low_humidity_check_value and toggle_three.value() != 1 and toggle_four.value() != 1:
-            relay_6 .value(1)
-            relay_1 .value(0)
-            relay_11.value(0)
-            relay_12.value(0)
-            relay_13.value(0)
-            relay_14.value(0)
-        elif hum < low_humidity_check_value:
-            relay_6 .value(1)
-            relay_11.value(0)
-            relay_12.value(0)
-            relay_13.value(0)
-            relay_14.value(0)
-
+            # this logic will check humidity levels and operate relay
+            if hum > humidity_check_value:
+                relay_6.value(0)
+                if hum > (humidity_check_value + 2) and toggle_three.value() != 1 and toggle_four.value() != 1:
+                    relay_1 .value(1)
+                    relay_11.value(1)
+                    relay_12.value(1)
+                    relay_13.value(1)
+                    relay_14.value(1)
+                else:  
+                    relay_11.value(1)
+                    relay_12.value(1)
+                    relay_13.value(1)
+                    relay_14.value(1)
+            elif hum < (humidity_check_value - 2):
+                if hum < (humidity_check_value - 2) and toggle_three.value() != 1 and toggle_four.value() != 1:
+                    relay_1 .value(0)
+                    relay_11.value(0)
+                    relay_12.value(0)
+                    relay_13.value(0)
+                    relay_14.value(0)
+                else:
+                    relay_11.value(0)
+                    relay_12.value(0)
+                    relay_13.value(0)
+                    relay_14.value(0)
+                    
+            if hum < low_humidity_check_value and toggle_three.value() != 1 and toggle_four.value() != 1:
+                relay_6 .value(1)
+                relay_1 .value(0)
+                relay_11.value(0)
+                relay_12.value(0)
+                relay_13.value(0)
+                relay_14.value(0)
+            elif hum < low_humidity_check_value:
+                relay_6 .value(1)
+                relay_11.value(0)
+                relay_12.value(0)
+                relay_13.value(0)
+                relay_14.value(0)
+        except (TypeError, IndexError, ValueError):
+            error_counter += 1
+            
     def display_lcd(t):
         """Timed function that transmits data to LCDs"""
 
@@ -316,6 +328,25 @@ try:
         pwmForwardDown.duty_u16(0)
             
         pwmForwardDown.duty_u16(0)
+        
+    def relays_off():
+        """Function that turns off all relays at significant events. Prevents shorts"""
+        
+        relay_1 .value(0)
+        relay_2 .value(0)
+        relay_3 .value(0)
+        relay_4 .value(0)
+        relay_5 .value(0)
+        relay_6 .value(0)
+        relay_7 .value(0)
+        relay_8 .value(0)
+        relay_9 .value(0)
+        relay_10.value(0)
+        relay_11.value(0)
+        relay_12.value(0)
+        relay_13.value(0)
+        relay_14.value(0)
+        relay_15.value(0)
 
     # toggle switch GPIO
     toggle_one   = Pin(2, Pin.IN, Pin.PULL_DOWN)  # Grow phase 1
@@ -376,23 +407,9 @@ try:
     temp_f = 212
     temp_c = 100
     hum    = 100
-
-    # ensure all relays are off at the start of program
-    relay_1 .value(0)
-    relay_2 .value(0)
-    relay_3 .value(0)
-    relay_4 .value(0)
-    relay_5 .value(0)
-    relay_6 .value(0)
-    relay_7 .value(0)
-    relay_8 .value(0)
-    relay_9 .value(0)
-    relay_10.value(0)
-    relay_11.value(0)
-    relay_12.value(0)
-    relay_13.value(0)
-    relay_14.value(0)
-    relay_15.value(0)
+    
+    # ensure all relays are off
+    relays_off()
 
     # establish system time
     database()
@@ -422,12 +439,14 @@ try:
             while toggle_one.value() == 1:
                 main_body(toggle_one)
             while toggle_two.value() == 1:
-                #water_redundancy_check = 0
                 main_body(toggle_two)
             while toggle_three.value() == 1:
-                #water_redundancy_check = 0
+                relay_1.value(0)
+                relay_1.value(1)
                 main_body(toggle_three)
             while toggle_four.value() == 1:
+                relay_1.value(0)
+                relay_1.value(1)
                 main_body(toggle_four)
 except (TypeError, ValueError, IndexError):
     error_counter += 1
