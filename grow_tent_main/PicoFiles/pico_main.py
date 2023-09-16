@@ -54,13 +54,9 @@ try:
         if toggle_one.value() == 1:
             if system_timer <= 23 and light_redundancy_check == 0:
                 relay_2.value(1)
-                relay_3.value(1)
-                relay_5.value(1)
                 light_redundancy_check += 1
             if system_timer == 24 and light_redundancy_check >= 1:
                 relay_2.value(1)
-                relay_3.value(1)
-                relay_5.value(1)
                 light_redundancy_check = 0
                 system_timer = 0
         if toggle_two.value() == 1:
@@ -76,15 +72,12 @@ try:
                 light_redundancy_check = 0
                 system_timer = 0
         if toggle_three.value() == 1:
+            lateral_lights()
             if system_timer == 12 and light_redundancy_check == 0:
                 relay_2.value(0)
-                relay_3.value(0)
-                relay_5.value(0)
                 light_redundancy_check += 1
             if system_timer == 24 and light_redundancy_check >= 1:
                 relay_2.value(1)
-                relay_3.value(1)
-                relay_5.value(1)
                 light_redundancy_check = 0
                 system_timer = 0
         if toggle_four.value() == 1:
@@ -99,6 +92,17 @@ try:
                 relay_5.value(0)
                 light_redundancy_check = 0
                 system_timer = 0
+                
+    def lateral_lights():
+        if system_timer == 0 and relay_3.value() != 1:
+            relay_3.value(1)
+            relay_5.value(0)
+        elif system_timer == 4 and relay_5.value() != 1:
+            relay_3.value(0)
+            relay_5.value(1)
+        elif system_timer >= 8 and relay_5.value() != 1 and relay_3.value() != 1:
+            relay_3.value(0)
+            relay_5.value(0)
 
     def water_plants():
         """Function that uses system time to water plants at 12 hour intervals"""
